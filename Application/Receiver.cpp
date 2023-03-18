@@ -318,11 +318,13 @@ void OutputScreen::setScreen(OutputLevel o) {
 void OutputScreen::connect(Receiver& r) {
 
 	if (level == OutputLevel::NMEA || level == OutputLevel::JSON_NMEA || level == OutputLevel::FULL) {
-		r.Output(0) >> msg2screen;
+		for (int i = 0; i < r.Count(); i++)
+			r.Output(i) >> msg2screen;
 		msg2screen.setDetail(level);
 	}
 	else if (level == OutputLevel::JSON_SPARSE || level == OutputLevel::JSON_FULL) {
-		r.OutputJSON(0) >> json2screen;
+		for (int i = 0; i < r.Count(); i++)
+			r.OutputJSON(i) >> json2screen;
 
 		if (level == OutputLevel::JSON_SPARSE) json2screen.setMap(JSON_DICT_SPARSE);
 	}
@@ -544,9 +546,10 @@ void WebClient::connect(Receiver& r) {
 	// connect all the statistical counters
 	r.Output(0) >> counter;
 
-	r.OutputJSON(0).Connect((StreamIn<JSON::JSON>*)&ships);
-	r.OutputGPS(0).Connect((StreamIn<AIS::GPS>*)&ships);
-
+	for (int i = 0; i < r.Count(); i++) {
+		r.OutputJSON(i).Connect((StreamIn<JSON::JSON>*)&ships);
+		r.OutputGPS(i).Connect((StreamIn<AIS::GPS>*)&ships);
+	}
 	*r.device >> raw_counter;
 }
 
