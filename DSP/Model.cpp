@@ -23,8 +23,7 @@
 namespace AIS {
 	std::mutex MessageMutex::mtx;
 
-	void ModelFrontend::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, Device::Device* dev) {
-		device = dev;
+	void ModelFrontend::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, SimpleStreamOut<RAW>* device) {
 
 		if (sample_rate < 96000 || sample_rate > 12288000)
 			throw std::runtime_error("Model: sample rate must be between 96K and 12288K (inclusive).");
@@ -292,7 +291,7 @@ namespace AIS {
 		return "droop " + Util::Convert::toString(droop_compensation) + " fp_ds " + Util::Convert::toString(fixedpointDS) + " " + Model::Get();
 	}
 
-	void ModelBase::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, Device::Device* dev) {
+	void ModelBase::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, SimpleStreamOut<RAW>* dev) {
 		ModelFrontend::buildModel(CH1, CH2, sample_rate, timerOn, dev);
 		setName("Base (non-coherent)");
 
@@ -313,7 +312,7 @@ namespace AIS {
 		return;
 	}
 
-	void ModelStandard::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, Device::Device* dev) {
+	void ModelStandard::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, SimpleStreamOut<RAW>* dev) {
 		ModelFrontend::buildModel(CH1, CH2, sample_rate, timerOn, dev);
 		setName("Standard (non-coherent)");
 
@@ -349,7 +348,7 @@ namespace AIS {
 		return;
 	}
 
-	void ModelDefault::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, Device::Device* dev) {
+	void ModelDefault::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, SimpleStreamOut<RAW>* dev) {
 		ModelFrontend::buildModel(CH1, CH2, sample_rate, timerOn, dev);
 
 		setName("AIS engine " VERSION);
@@ -429,7 +428,7 @@ namespace AIS {
 		return "ps_ema " + Util::Convert::toString(PS_EMA) + " afc_wide " + Util::Convert::toString(CGF_wide) + " " + ModelFrontend::Get();
 	}
 
-	void ModelChallenger::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, Device::Device* dev) {
+	void ModelChallenger::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, SimpleStreamOut<RAW>* dev) {
 		ModelFrontend::buildModel(CH1, CH2, sample_rate, timerOn, dev);
 
 		setName("AIS engine " VERSION);
@@ -506,10 +505,9 @@ namespace AIS {
 		return "ps_ema " + Util::Convert::toString(PS_EMA) + " " + ModelFrontend::Get();
 	}
 
-	void ModelDiscriminator::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, Device::Device* dev) {
+	void ModelDiscriminator::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, SimpleStreamOut<RAW>* device) {
 		setName("FM discriminator output model");
 
-		device = dev;
 		const int nSymbolsPerSample = 48000 / 9600;
 
 		FR_a.setTaps(Filters::Receiver);
@@ -554,9 +552,8 @@ namespace AIS {
 		return;
 	}
 
-	void ModelNMEA::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, Device::Device* dev) {
+	void ModelNMEA::buildModel(char CH1, char CH2, int sample_rate, bool timerOn, SimpleStreamOut<RAW>* device) {
 		setName("NMEA input");
-		device = dev;
 		*device >> nmea >> output;
 		nmea.outGPS >> output_gps;
 	}

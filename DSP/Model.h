@@ -65,13 +65,12 @@ namespace AIS {
 	protected:
 		std::string name = "";
 
-		Device::Device* device;
 		Util::Timer<RAW> timer;
 		MessageMutex output;
 		Util::PassThrough<GPS> output_gps;
 
 	public:
-		virtual void buildModel(char, char, int, bool, Device::Device* d) { device = d; }
+		virtual void buildModel(char, char, int, bool, SimpleStreamOut<RAW>* d) {}
 
 		StreamOut<Message>& Output() { return output; }
 		StreamOut<GPS>& OutputGPS() { return output_gps; }
@@ -116,7 +115,7 @@ namespace AIS {
 		DSP::Rotate ROT;
 
 	public:
-		void buildModel(char, char, int, bool, Device::Device*);
+		void buildModel(char, char, int, bool, SimpleStreamOut<RAW>*);
 
 		Setting& Set(std::string option, std::string arg);
 		std::string Get();
@@ -131,7 +130,7 @@ namespace AIS {
 		DSP::Deinterleave<FLOAT32> S_a, S_b;
 
 	public:
-		void buildModel(char, char, int, bool, Device::Device*);
+		void buildModel(char, char, int, bool, SimpleStreamOut<RAW>*);
 	};
 
 
@@ -143,7 +142,7 @@ namespace AIS {
 		AIS::Decoder DEC_a, DEC_b;
 
 	public:
-		void buildModel(char, char, int, bool, Device::Device*);
+		void buildModel(char, char, int, bool, SimpleStreamOut<RAW>*);
 	};
 
 	// Simple model embedding some elements of a coherent model with local phase estimation
@@ -164,7 +163,7 @@ namespace AIS {
 		bool CGF_wide = false;
 
 	public:
-		void buildModel(char, char, int, bool, Device::Device*);
+		void buildModel(char, char, int, bool, SimpleStreamOut<RAW>*);
 		Setting& Set(std::string option, std::string arg);
 		std::string Get();
 	};
@@ -186,7 +185,7 @@ namespace AIS {
 		bool PS_EMA = true;
 
 	public:
-		void buildModel(char, char, int, bool, Device::Device*);
+		void buildModel(char, char, int, bool, SimpleStreamOut<RAW>*);
 		Setting& Set(std::string option, std::string arg);
 		std::string Get();
 	};
@@ -204,7 +203,7 @@ namespace AIS {
 		Util::ConvertRAW convert;
 
 	public:
-		void buildModel(char, char, int, bool, Device::Device*);
+		void buildModel(char, char, int, bool, SimpleStreamOut<RAW>*);
 		ModelClass getClass() { return ModelClass::FM; }
 	};
 
@@ -213,7 +212,7 @@ namespace AIS {
 		NMEA nmea;
 
 	public:
-		void buildModel(char, char, int, bool, Device::Device*);
+		void buildModel(char, char, int, bool, SimpleStreamOut<RAW>*);
 		Setting& Set(std::string option, std::string arg);
 		std::string Get();
 		ModelClass getClass() { return ModelClass::TXT; }

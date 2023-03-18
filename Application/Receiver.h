@@ -73,6 +73,11 @@ class Receiver {
 	AIS::Mode ChannelMode = AIS::Mode::AB;
 	std::string ChannelNMEA = "AB";
 
+	Util::ConvertRAW convert_cf32;
+	Util::ConvertToRAW convert_up;
+	Util::ConvertToRAW convert_down;
+	DSP::Rotate ROT;
+
 	// Output
 	std::vector<AIS::JSONAIS> jsonais;
 

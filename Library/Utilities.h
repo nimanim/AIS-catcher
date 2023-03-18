@@ -130,4 +130,13 @@ namespace Util {
 
 		void Receive(const RAW* raw, int len, TAG& tag);
 	};
+
+	class ConvertToRAW : public StreamIn<CFLOAT32>, public SimpleStreamOut<RAW> {
+
+	public:
+		void Receive(const CFLOAT32* data, int len, TAG& tag) {
+			RAW r = { Format::CF32, (void*)data, len * sizeof(CFLOAT32) };
+			Send(&r, 1, tag);
+		}
+	};
 }

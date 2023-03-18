@@ -18,7 +18,7 @@
 #include "Receiver.h"
 #include "Utilities.h"
 #include "JSON/StringBuilder.h"
-
+#include "Common.h"
 #include "Statistics.h"
 //--------------------------------------------
 
@@ -73,6 +73,10 @@ void Receiver::setChannel(std::string mode, std::string NMEA) {
 	else if (mode == "CD") {
 		ChannelMode = AIS::Mode::CD;
 		if (NMEA.empty()) NMEA = "CD";
+	}
+	else if (mode == "ABCD") {
+		ChannelMode = AIS::Mode::ABCD;
+		if (NMEA.empty()) NMEA = "ABCD";
 	}
 	else
 		throw std::runtime_error("channel mode needs to be AB or CD");
@@ -170,6 +174,8 @@ void Receiver::setupDevice() {
 
 	if (ChannelMode == AIS::Mode::AB)
 		device->setFrequency((int)(162000000));
+	else if (ChannelMode == AIS::Mode::ABCD)
+		device->setFrequency((int)(159400000));
 	else
 		device->setFrequency((int)(156800000));
 
@@ -209,13 +215,37 @@ std::unique_ptr<AIS::Model>& Receiver::addModel(int m) {
 }
 
 void Receiver::setupModel() {
-	// if nothing defined, create one model
-	if (!models.size())
-		addModel((device->getFormat() == Format::TXT) ? 5 : 2);
 
-	// build the decoder models
-	for (auto& m : models)
-		m->buildModel(ChannelNMEA[0], ChannelNMEA[1], device->getSampleRate(), timing, device);
+	if (ChannelMode != AIS::Mode::ABCD) {
+		// if nothing defined, create one model
+		if (!models.size())
+			addModel((device->getFormat() == Format::TXT) ? 5 : 2);
+
+		// build the decoder models
+		for (auto& m : models)
+			m->buildModel(ChannelNMEA[0], ChannelNMEA[1], device->getSampleRate(), timing, device);
+	}
+	else {
+		if (models.size())
+			throw std::runtime_error("Decoding model cannot be set when decoding ABCD");
+
+		addModel(2);
+		addModel(2);
+
+		if (device->getSampleRate() < 6000000)
+			throw std::runtime_error("Sample rate too low for ABCD decoding, us -s 6000000 or higher.");
+
+		std::cerr << "Decoding ABCD: frequency set at " << device->getFrequency() << " sr " << device->getSampleRate() << " rot " << (2.0 * PI * 2600000 / device->getSampleRate()) << std::endl;
+		ROT.setRotation((float)(2.0 * PI * 2600000 / device->getSampleRate()));
+
+		*device >> convert_cf32 >> ROT;
+
+		ROT.up >> convert_up;
+		ROT.down >> convert_down;
+
+		models[0]->buildModel(ChannelNMEA[0], ChannelNMEA[1], device->getSampleRate(), timing, &convert_up);
+		models[1]->buildModel(ChannelNMEA[2], ChannelNMEA[3], device->getSampleRate(), timing, &convert_down);
+	}
 
 	// ensure some basic compatibility between model and device
 	for (const auto& m : models) {
