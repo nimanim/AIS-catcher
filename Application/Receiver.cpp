@@ -243,8 +243,8 @@ void Receiver::setupModel() {
 		ROT.up >> convert_up;
 		ROT.down >> convert_down;
 
-		models[0]->buildModel(ChannelNMEA[0], ChannelNMEA[1], device->getSampleRate(), timing, &convert_up);
-		models[1]->buildModel(ChannelNMEA[2], ChannelNMEA[3], device->getSampleRate(), timing, &convert_down);
+		models[0]->buildModel(ChannelNMEA[0], ChannelNMEA[1], device->getSampleRate(), timing, &convert_down);
+		models[1]->buildModel(ChannelNMEA[2], ChannelNMEA[3], device->getSampleRate(), timing, &convert_up);
 	}
 
 	// ensure some basic compatibility between model and device
