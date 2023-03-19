@@ -543,10 +543,9 @@ void WebClient::connect(Receiver& r) {
 	serial = r.device->getSerial();
 	model = r.Model(0)->getName();
 
-	// connect all the statistical counters
-	r.Output(0) >> counter;
-
 	for (int i = 0; i < r.Count(); i++) {
+		// connect all the statistical counters
+		r.Output(i) >> counter;
 		r.OutputJSON(i).Connect((StreamIn<JSON::JSON>*)&ships);
 		r.OutputGPS(i).Connect((StreamIn<AIS::GPS>*)&ships);
 	}
