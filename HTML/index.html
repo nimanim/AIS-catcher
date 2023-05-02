@@ -12,6 +12,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/rbush@3.0.1/rbush.min.js"></script>	
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css" />
@@ -1371,6 +1372,7 @@
         var range_update_time = null;
 
         var marker_center = null, marker_range = null, marker_station = null, marker_focus = null, marker_hover = null, marker_showtrack = false, marker_track = null;
+        var shipCanvas;
 
         // default settings
         var settings = { map: 'Voyager', zoom: 10, lat: 0, lon: 0, fix_center: false, center_point: "station", dark_mode: false, center_radius: 0, metric: "DEFAULT", setcoord: true, sort: 'distance', sort_dir: 'asc', tab: 'stat', labels: false, eri: true, loadURL: true };
@@ -1408,6 +1410,455 @@
         getCallSign = ship => ship.callsign;
         includeShip = ship => true;
 
+</script>
+<script>
+
+
+        statpng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAUCAYAAADRA14pAAACXUlEQVRYhe3Ru47aQABG4UMWKSGJUJRqW9JlN+yKJim59duQBwD2kShyqXBtkheghJ4KF0gICewCISxRMgg7BYYYe2ZtME0uI42EMDr6Pwz/j/S8A1L/Su9+MGCmaXy5UPQeBjPQLtYbwEzjMvvuDAPTdXGFYKNpfE0YvQPDBNcFsQEtcc8A0wVXwEYj2b68YWC5Lu7+JkTnwbB22P1NhM4bYPliidAfglgJ+tkpvTA2hD6pF8RK0LF7SmwA/S1m9AnsETp2T4UNoGP1bqOwfnS7HRm9jcb60e3IXhTWj25HoG9k2NGIZb9PazhkokB/V0Rv5NjREvotGE4UaGVPhh3Bsg+tIUwUaGnvvQy73SIKBR6833xarRAStPDQV/6eHLsVUDj0YCUkaOGhj3oy7BZEAd8+EBK08NBX7OW1GtfZLC8k/6qby/Ha+/wmlcIN/iCdhkyGt8Dz/XcpateQlfYgd+hBKtSDNJA56n2G6yyKffj2IdkHZDjeB0C9TtU0sYNv0LKwez264zGL4DPHQeg6P4GX4S31Kph2+A1aNvS6MF6EnzkCdGmvDlUT7OAbtMDuQXcMi+AzB4SOah/QaFCRoWXXw/5QxnbFihwtu44A/cleAyoytOx62Ih9MdHxsKego7GnoGNj96fZpKxCe9hO7NiuWFajHQH6Sb0mlFVoD3vivh26FEQ7DutO54zYrlgKo501dM7qNaEURDuw7pyDPUR9aA+rA6/Oiu2Kpd9oZw2dRD0/2sMm3Ac8PlKcTpknxx6KRZjOk2IPNShOYX4RrO98vGTsD+j9PecXIj9PVcetObkAAAAASUVORK5CYII=";
+        planepng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAACt0lEQVRIx7XVT2hcVRTH8c9MJ5kwo5kEkv5Bilpr20j8E62xCyHZuHGhIM1CaXfWTUGoglpQF+rGZRE3BRVpEaSC1V2oGxcVsVhEIYZYK60UkyZmZpJmMs1k3nXhDQzTRidt8oPL475zzv3ec96959G6XkHYLl1FwKs2QD/t1zlf9uTkfp3z+Hm9Ae1YHNVfDobDGf0lVJFrJTjdImQ7Ou6Tq0F8ZnHPekKy0Ks9A1tlM2spQ3otzlnp8G9QyoZBblWtQB7Cx6vYTuCx29lAG97GEmof2TlZN1QNhkPdUPWE+yexHO3vRP81aQDnEZ7TWbxgcDIYDs3jd4N/HdA9Fy/n+Rh3g1I3uQ9v4nVkTto1PWJroV26Y7XdLEmqp0yWD5jojZm9j/dihjdA9uJTPPCCrrl37arukNvcauoXVa6+ZaLjM6VOjOEQvluBtEXyEaRO2VN81pZ8m1QOSdly+aJKeyKkd8qHgkxuzvLCbxbSaalkh9xSQaaAdE2ofGVqYcR4VzxUH+Ao/IpwUHfxkiemaoYq4x6f+cKe4vO6SrHeAeGcgcVgOJwzsNj4fkSh9Lnds2P2TtcMVa7YN/uSntlo/wXqL9s8dlrflaO2Xc1LrXTZ6/g2fqNHMNEEmcLDeC36LSLkpapv2DZzWt/lw3rHUYekYVcX8CGeQWdT2cdG9U8Hw+EbD87Eujfqzhh3LK6zsmaSiRftB5zBpQi9mUo1SQ9U1RNca7LP4+s4juBuPIXBDF5s8QCVm+Z//4dvgj9wHMfX1LtKlvNQUc9uVIMsBiEN1yXt8ae1rpAM7m16txs96wXZhE+w7w6ZGmyRXUAfRtHVygL/p2M49LT8nwfdJaFekNmUVb981rV+PIovUbvVdn+44bzXELqlluK82mA7eTvlamzdY/ixKLThe5yNADGbVfUPx0b/bFzy3uUAAAAASUVORK5CYII=";
+        helicopterpng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAADxUlEQVRIx61VXWgcVRg9d+7Mnd3Zmd1N405oE5KakLbYgDTFH5BUEFo1WJuUNkiLEkVFxSb4UEVsUCutbWPAH1y10qAP2tJa6kMJltKU+CDqKmxQMNZV2ZikSkKSNTP7Mz97fcnCMuxuNq3n8Z7vO+fe7565A6wOr3wSDM5up/RL3AS2UuAogJoSXPiYovwV13V+OhRaAnBvGY37KPAmAFJYEDwFzW+r6r49ongRQJ2H69zq96sAsFGW6TrgwRIGe48oyqdPMdZVyeTcAcOIdvh8Db2S9BWAhgJRA2yIUBpcbvL3+nxtnt7HBwOBwWnHSX1oWT0A8uVMAOBEv2Gc2MyY9jRjlwC0AMB+xjYW10cobS/a7fNDgcDAhGWlopbVBeCnYkGhzFzfP2iabzSJotQny5cAtNWLYlNxwS2iuGb57l5+V1UP/pjLzZ6y7YcAJLxitEIIxkdte+ZhWd7VLgjddaJY3yhJSoHMcb54JZttf0vT9n6dzSbPOE4XgJlSQnSFtP0yats/389Y13ZVrSNFJw8IArmbMe28aV674Lq7AMyVExFWMFkPoHHOdVPEsyGREH8mn1cuuu73ABqL0+QFKeO8+5Dff6iVsfVNkiQHBUEpJ5DjPDdt2/nfLOvvkWz2s7F8fsBbI5ZqfEKStu3WtC3VfL0yIXIzY2hm7FZFELrHDKM6k89t+1pbOp3QKQ01SVIgUOEkNufmjOPwSdv+N5bLjVc9riJsALDvPVXt71CUcIlRzW2bnU3mgD4AMQD2jVy8uV8UOzmQOT4/H8sD2QJxfmkpNriw8PuQqq7VgZ0AnBt5LFselaTYUCCQBHAAwCNXa2sX47rO47rOd1IaBaB1Uno5qml/rAPeKTf+critj7GJo4ryK4Dewui+CIdTcV3nP0QiBoD+5XXfPYJw4aSmJbcQMlytUfsLspw4oihTAHqK1tWPNG0xrut8tLZ2EcCe4pDdQcjpU8HgP3cKwjkAcsX/yYs+X+J1v38SQKeXPKYo38V1nZ8Nh1MAWr1JvZ2Q4Y81bXIHpSOVnvqWaceZfzWTeQzAiNfkuutOAsC860oAkh7aGef8ycOGcSZMSH0VoSqNTYS8Ftf1/HFF+WY1fatym+B8Lsu5Ne26U6vpqyYJzwIgD1DasFkUO1zOxRpB2PQcYx9ELetPAD4AhysJkBUdGBvuDYW6ZUJC3nqHc/OKaV5/KZ1uvamTcCD/bSZjraHU0CmlEVGUFlzXnHddOmXbbppzEf8DegCMAVgLYMddgpAA8AyAZgADAE6uJPAfk1U+b+R6xyUAAAAASUVORK5CYII=";
+        shippng = "data:image/png;base64,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";
+  
+        const markersCanvas = {
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        //
+        // private: properties
+        //
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+        _map: null,
+        _canvas: null,
+        _context: null,
+
+        // leaflet markers (used to getBounds)
+        _markers: [],
+
+        // visible markers
+        _markersTree: new RBush(),
+
+        // every marker positions (even out of the canvas)
+        _positionsTree: new RBush(),
+
+        // icon images index
+        _icons: {},
+
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        //
+        // public: global
+        //
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+        addTo(map) {
+            map.addLayer(this);
+
+            return this;
+        },
+
+        getBounds() {
+            const bounds = new L.LatLngBounds();
+
+            this._markers.forEach((marker) => {
+            bounds.extend(marker.getLatLng());
+            });
+
+            return bounds;
+        },
+
+        redraw() {
+            this._redraw(true);
+        },
+
+        clear() {
+            this._positionsTree = new RBush();
+            this._markersTree = new RBush();
+            this._markers = [];
+            this._redraw(true);
+        },
+
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        //
+        // public: markers
+        //
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+        addMarker(marker) {
+            const { markerBox, positionBox, isVisible } = this._addMarker(marker);
+
+            if (markerBox && isVisible) {
+            this._markersTree.insert(markerBox);
+            }
+
+            if (positionBox) {
+            this._positionsTree.insert(positionBox);
+            }
+        },
+
+        // add multiple markers (better for rBush performance)
+        addMarkers(markers) {
+            const markerBoxes = [];
+            const positionBoxes = [];
+
+            markers.forEach((marker) => {
+            const { markerBox, positionBox, isVisible } = this._addMarker(marker);
+
+            if (markerBox && isVisible) {
+                markerBoxes.push(markerBox);
+            }
+
+            if (positionBox) {
+                positionBoxes.push(positionBox);
+            }
+            });
+
+            this._markersTree.load(markerBoxes);
+            this._positionsTree.load(positionBoxes);
+        },
+
+        removeMarker(marker) {
+            const latLng = marker.getLatLng();
+            const isVisible = this._map.getBounds().contains(latLng);
+
+            const positionBox = {
+            minX: latLng.lng,
+            minY: latLng.lat,
+            maxX: latLng.lng,
+            maxY: latLng.lat,
+            marker,
+            };
+
+            this._positionsTree.remove(positionBox, (a, b) => {
+            return a.marker._leaflet_id === b.marker._leaflet_id;
+            });
+
+            if (isVisible) {
+            this._redraw(true);
+            }
+        },
+
+        // remove multiple markers (better for rBush performance)
+        removeMarkers(markers) {
+            let hasChanged = false;
+
+            markers.forEach((marker) => {
+            const latLng = marker.getLatLng();
+            const isVisible = this._map.getBounds().contains(latLng);
+
+            const positionBox = {
+                minX: latLng.lng,
+                minY: latLng.lat,
+                maxX: latLng.lng,
+                maxY: latLng.lat,
+                marker,
+            };
+
+            this._positionsTree.remove(positionBox, (a, b) => {
+                return a.marker._leaflet_id === b.marker._leaflet_id;
+            });
+
+            if (isVisible) {
+                hasChanged = true;
+            }
+            });
+
+            if (hasChanged) {
+            this._redraw(true);
+            }
+        },
+
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        //
+        // leaflet: default methods
+        //
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+        initialize(options) {
+            L.Util.setOptions(this, options);
+        },
+
+        // called by Leaflet on `map.addLayer`
+        onAdd(map) {
+            this._map = map;
+            this._initCanvas();
+            this.getPane().appendChild(this._canvas);
+
+            map.on("moveend", this._reset, this);
+            map.on("resize", this._reset, this);
+
+            map.on("click", this._fire, this);
+            map.on("mousemove", this._fire, this);
+            map.on("contextmenu", this._fire, this);
+
+            if (map._zoomAnimated) {
+            map.on("zoomanim", this._animateZoom, this);
+            }
+        },
+
+        // called by Leaflet
+        onRemove(map) {
+            this.getPane().removeChild(this._canvas);
+
+            map.off("click", this._fire, this);
+            map.off("mousemove", this._fire, this);
+            map.off("contextmenu", this._fire, this);
+            map.off("moveend", this._reset, this);
+            map.off("resize", this._reset, this);
+
+            if (map._zoomAnimated) {
+            map.off("zoomanim", this._animateZoom, this);
+            }
+        },
+
+        setOptions(options) {
+            L.Util.setOptions(this, options);
+
+            return this.redraw();
+        },
+
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        //
+        // private: global methods
+        //
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+        _initCanvas() {
+            const { x, y } = this._map.getSize();
+            const isAnimated = this._map.options.zoomAnimation && L.Browser.any3d;
+
+            this._canvas = L.DomUtil.create(
+            "canvas",
+            "leaflet-markers-canvas-layer leaflet-layer"
+            );
+            this._canvas.width = x;
+            this._canvas.height = y;
+            this._context = this._canvas.getContext("2d");
+
+            L.DomUtil.addClass(
+            this._canvas,
+            `leaflet-zoom-${isAnimated ? "animated" : "hide"}`
+            );
+        },
+
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        //
+        // private: marker methods
+        //
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+        _addMarker(marker) {
+            if (marker.options.pane !== "markerPane" || !marker.options.icon) {
+            console.error("This is not a marker", marker);
+
+            return { markerBox: null, positionBox: null, isVisible: null };
+            }
+
+            // required for pop-up and tooltip
+            marker._map = this._map;
+
+            // add _leaflet_id property
+            L.Util.stamp(marker);
+
+            const latLng = marker.getLatLng();
+            const isVisible = this._map.getBounds().contains(latLng);
+            const { x, y } = this._map.latLngToContainerPoint(latLng);
+            const { iconSize, iconAnchor } = marker.options.icon.options;
+
+            const markerBox = {
+            minX: x - iconAnchor[0],
+            minY: y - iconAnchor[1],
+            maxX: x + iconSize[0] - iconAnchor[0],
+            maxY: y + iconSize[1] - iconAnchor[1],
+            marker,
+            };
+
+            const positionBox = {
+            minX: latLng.lng,
+            minY: latLng.lat,
+            maxX: latLng.lng,
+            maxY: latLng.lat,
+            marker,
+            };
+
+            if (isVisible) {
+            this._drawMarker(marker, { x, y });
+            }
+
+            this._markers.push(marker);
+
+            return { markerBox, positionBox, isVisible };
+        },
+
+        _drawMarker(marker, { x, y }) {
+            const { iconUrl } = marker.options.icon.options;
+
+            if (marker.image) {
+            this._drawImage(marker, { x, y });
+            } else if (this._icons[iconUrl]) {
+            marker.image = this._icons[iconUrl].image;
+
+            if (this._icons[iconUrl].isLoaded) {
+                this._drawImage(marker, { x, y });
+            } else {
+                this._icons[iconUrl].elements.push({ marker, x, y });
+            }
+            } else {
+            const image = new Image();
+            image.src = iconUrl;
+            marker.image = image;
+
+            this._icons[iconUrl] = {
+                image,
+                isLoaded: false,
+                elements: [{ marker, x, y }],
+            };
+
+            image.onload = () => {
+                this._icons[iconUrl].isLoaded = true;
+                this._icons[iconUrl].elements.forEach(({ marker, x, y }) => {
+                this._drawImage(marker, { x, y });
+                });
+            };
+            }
+        },
+
+        _drawImage(marker, { x, y }) {
+            const { rotationAngle, iconAnchor, iconSize, iconOffset } = marker.options.icon.options;
+            const angle = rotationAngle || 0;
+            const sx = iconOffset ? iconOffset[0] : 0;
+            const sy = iconOffset ? iconOffset[1] : 0;
+
+            this._context.save();
+            this._context.translate(x, y);
+            this._context.rotate((angle * Math.PI) / 180);
+            this._context.drawImage(marker.image,sx,sy,iconSize[0],iconSize[1],-iconAnchor[0],-iconAnchor[1],iconSize[0],iconSize[1]);
+            this._context.restore();
+        },
+
+        _redraw(clear) {
+            if (clear) {
+            this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+            }
+
+            if (!this._map || !this._positionsTree) return;
+
+            const mapBounds = this._map.getBounds();
+            const mapBoundsBox = {
+                minX: mapBounds.getWest(),
+                minY: mapBounds.getSouth(),
+                maxX: mapBounds.getEast(),
+                maxY: mapBounds.getNorth(),
+            };
+
+            // draw only visible markers
+            const markers = [];
+            this._positionsTree.search(mapBoundsBox).forEach(({ marker }) => {
+            const latLng = marker.getLatLng();
+            const { x, y } = this._map.latLngToContainerPoint(latLng);
+            const { iconSize, iconAnchor } = marker.options.icon.options;
+
+            const markerBox = {
+                minX: x - iconAnchor[0],
+                minY: y - iconAnchor[1],
+                maxX: x + iconSize[0] - iconAnchor[0],
+                maxY: y + iconSize[1] - iconAnchor[1],
+                marker,
+            };
+
+            markers.push(markerBox);
+            this._drawMarker(marker, { x, y });
+            });
+
+            this._markersTree.clear();
+            this._markersTree.load(markers);
+        },
+
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        //
+        // private: event methods
+        //
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+        _reset() {
+            const topLeft = this._map.containerPointToLayerPoint([0, 0]);
+            L.DomUtil.setPosition(this._canvas, topLeft);
+
+            const { x, y } = this._map.getSize();
+            this._canvas.width = x;
+            this._canvas.height = y;
+
+            this._redraw();
+        },
+
+        _fire(event) {
+            if (!this._markersTree) return;
+
+            const { x, y } = event.containerPoint;
+            const markers = this._markersTree.search({
+            minX: x,
+            minY: y,
+            maxX: x,
+            maxY: y,
+            });
+
+            if (markers && markers.length) {
+            this._map._container.style.cursor = "pointer";
+            const marker = markers[0].marker;
+
+            if (event.type === "click") {
+                if (marker.listens("click")) {
+                    // remove click from propagation and being picked up by map.on('click') listeners
+                    L.DomEvent.stopPropagation(event);
+                    event.originalEvent.stopPropagation();
+
+                marker.fire("click");
+                }
+            }
+
+            if (event.type === "contextmenu") {
+                if (marker.listens("contextmenu")) {
+                marker.fire("contextmenu");
+                }
+            }
+            if (event.type === "mousemove") {
+                if (this._mouseOverMarker && this._mouseOverMarker !== marker) {
+                if (this._mouseOverMarker.listens("mouseout")) {
+                    this._mouseOverMarker.fire("mouseout");
+                }
+                }
+
+                if (!this._mouseOverMarker || this._mouseOverMarker !== marker) {
+                this._mouseOverMarker = marker;
+                if (marker.listens("mouseover")) {
+                    marker.fire("mouseover");
+                }
+                }
+            }
+            } else {
+            this._map._container.style.cursor = "";
+            if (event.type === "mousemove" && this._mouseOverMarker) {
+                if (this._mouseOverMarker.listens("mouseout")) {
+                this._mouseOverMarker.fire("mouseout");
+                }
+
+                delete this._mouseOverMarker;
+            }
+            }
+        },
+
+        _animateZoom(event) {
+            const scale = this._map.getZoomScale(event.zoom);
+            const offset = this._map._latLngBoundsToNewLayerBounds(
+            this._map.getBounds(),
+            event.zoom,
+            event.center
+            ).min;
+
+            L.DomUtil.setTransform(this._canvas, offset, scale);
+        },
+        };
+
+        L.MarkersCanvas = L.Layer.extend(markersCanvas);
+        
+
         // https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
         async function copyClipboard(t) {
             try {
@@ -1415,12 +1866,6 @@
             } catch(error) {
                 showDialog("Action","No privilege for program to copy to the clipboard. Please select and copy (CTRL-C) the following string manually: " + t);
             }
-            return;
-
-            if (!navigator.clipboard)
-                showDialog("Action","No privilege for program to copy to the clipboard. Please select and copy (CTRL-C) the following string manually: " + t);
-            else
-                navigator.clipboard.writeText(t);
         }
 
         async function copyToClipboard(textToCopy) {
@@ -1856,11 +2301,13 @@
             map.on('baselayerchange', function (event) { settings.map = event.name; saveSettings(); });
             map.on('mousemove', function (evt) { saveSettings(); updateTooltips(); });
             map.on('zoomend', function (evt) { saveSettings(); updateTooltips(); });
+            /*
             map.on('click', function () {
                 if (singleClickTimeout == null) {
                     singleClickTimeout = setTimeout(() => { showShipcard(null); hideMenuifSmall(); singleClickTimeout = null; }, 400);
                 }
             });
+            */
             map.on('dblclick dragstart zoomstart', function () { if (singleClickTimeout != null) { clearTimeout(singleClickTimeout); singleClickTimeout = null; } });
 
             map.addControl(new L.Control.Zoom({ position: 'bottomright' }));
@@ -1872,6 +2319,9 @@
             map.getPane("locationMarker").style.zIndex = 999;
 
             L.DomEvent.disableClickPropagation(document.getElementById('shipcard'));
+
+            shipCanvas = new L.MarkersCanvas();
+            shipCanvas.addTo(map);
         }
 
         function updateLabelControl() {
@@ -2125,6 +2575,7 @@
                 ships = await response.json();
             }
             else {
+                ships_json = '{"count":359,"station":{"lat":52.081657,"lon":4.338417},"values":[[255806165,51.978302,4.078057,11.445821,237,-78.448105,270,0.578704,false,307,309.800018,12.900001,125,10,10,14,71,1,42,3,"PT",5,8.300000,5,2,22,0,9326964,"CQAG3","WEC FRANS HALS","BEANR",1],[257630000,52.195030,4.257333,7.433959,336,-77.056473,1716,1.736111,false,282,293.600006,1.500000,190,55,16,28,80,1,42,3,"NO",0,8.600000,4,27,8,0,9863558,"LAKU8","ALTERA WAVE","NL SCE",2],[219110000,51.958717,4.052983,12.872696,235,-73.024437,774,4.629630,false,83,173.100006,0.000000,161,39,18,18,71,1,16777258,3,"DK",0,9.400001,5,3,15,0,9775751,"OWCF2","VAYENGA MAERSK","NLRTM>DEBRV",3],[2442006,null,null,null,null,-76.017876,18625,2.893518,false,null,null,null,null,null,null,null,0,0,16,3,"NL",15,0.000000,null,null,null,null,null,"","","",3],[352002025,51.914635,4.244802,10.608397,199,-79.239510,108,2.314815,false,302,302.000000,7.500000,128,28,9,16,80,1,42,3,"PA",0,6.600000,5,1,16,0,9952153,"3E2190","BOW PANTHER","NLRTM",3],[245562000,52.161732,4.330645,4.816397,356,-82.195641,176,-1.157407,false,216,236.300003,3.100000,null,null,null,null,0,1,10,3,"NL",5,0.000000,null,null,null,null,null,"","","",3],[249525000,51.959301,4.052967,12.853073,235,-80.582085,1479,2.025463,false,249,251.000000,6.300000,12,16,5,5,52,1,42,3,"MT",0,4.500000,7,4,20,0,9402421,"9HB4828","VB HUDSON","ROTTERDAM",3],[538007953,51.962383,4.130816,10.493444,227,-77.650757,281,1.446759,false,312,310.300018,4.700000,213,37,28,16,80,1,42,3,"MH",0,8.600000,5,2,14,0,9728435,"V7BT5","IONIC ALTHEA","NLRTM",4],[244770939,52.190929,4.136197,9.928713,311,-77.195480,6291,1.736111,false,null,null,null,null,null,null,null,0,1,4112,3,"NL",15,0.000000,null,null,null,null,null,"","","",8],[244620975,52.064697,4.343582,1.035932,169,-70.706017,228,-0.578704,false,null,180.000000,0.100000,60,10,5,3,8010,1,298,3,"NL",0,3.000000,4,27,11,49,2325435,"PD3543","COTRANS 11","BORN",10],[257165000,52.099346,4.266161,2.869318,291,-74.386192,519,4.050926,false,43,213.699997,0.000000,55,9,4,5,36,1,40,3,"NO",5,4.500000,4,29,10,0,5334561,"LDTY","SORLANDET","SCHEVENINGEN",10],[566017000,52.194286,4.203895,8.384701,323,-77.116653,322,1.736111,false,287,220.900009,0.000000,96,17,15,4,82,1,40,3,"SG",1,5.200000,3,11,2,0,9743253,"9V2945","EPIC BONAIRE","NLRTM",11],[244620984,52.058365,4.345452,1.422297,169,-78.663101,1170,-1.157407,false,null,142.900009,5.500000,50,13,3,4,8010,1,298,3,"NL",0,0.000000,9,20,5,0,3250303,"PG5169","CHAPERON","GOTTERWICKERSHAM",12],[244719315,52.074055,4.317698,0.890404,239,-58.407764,706,-1.157407,false,null,null,0.000000,20,4,4,1,8000,1,16777512,3,"NL",5,0.000000,null,null,0,0,null,"PG6249","ST.RAFAEL","",14],[247373700,51.923248,4.197093,10.851041,208,-81.533081,39,3.761574,false,53,226.900009,1.000000,90,23,7,11,81,1,42,3,"IT",0,7.000000,5,2,10,0,9321433,"IBPM","MARY  A","NLRTM",15],[244710825,52.099335,4.270236,2.729997,292,-81.385292,2305,-0.868056,false,null,0.000000,0.000000,3,7,2,2,30,1,42,3,"NL",7,0.000000,null,null,null,null,null,"PD4198","SCH 335 MANDY","",20],[244974000,52.101585,4.266992,2.893810,294,-81.673012,2444,2.025463,false,241,280.899994,0.000000,12,6,2,3,51,1,42,3,"NL",0,1.000000,4,28,15,0,null,"PBMA","KITTY ROOSMALE NEP.","SCHEVENINGEN",21],[246189000,52.179066,4.347917,5.858936,3,-81.176399,1413,1.736111,false,null,33.400002,3.000000,13,10,3,3,30,1,34,3,"NL",0,2.600000,null,null,0,0,8432194,"PBPA","UK162 GERRIT SENIOR","FISHING",23],[244034000,52.099270,4.263852,2.947022,291,-80.416313,757,1.157407,false,null,null,0.000000,4,14,3,3,52,1,42,3,"NL",0,0.000000,null,null,null,null,8873805,"PGLN","OCEAAN","SCHEVENINGEN",25],[249875000,51.951115,4.127117,11.063104,224,-78.025963,500,2.604167,false,186,12.000000,0.000000,193,32,20,12,70,1,40,3,"MT",5,8.300000,4,25,14,0,9342877,"9HA2051","FAIR LADY","ROTTERDAM",26],[244692000,52.154491,4.256585,5.312846,325,-82.359894,730,3.472222,false,184,190.100006,10.200000,23,8,3,3,53,1,42,3,"NL",5,2.400000,null,null,null,null,7117400,"PFRI","MAARTJE","SCHEVENINGEN",28],[211887090,51.953060,3.992640,14.928237,238,-79.682365,344,0.000000,false,33,74.099998,0.000000,140,228,31,20,74,1,40,3,"DE",5,13.600000,5,3,0,0,9708801,"DCOD2","LINAH","DEHAM",31],[246529000,52.097103,4.259702,3.048367,287,-84.217461,237,-1.446759,false,253,null,0.000000,18,5,3,2,36,1,42,3,"NL",0,2.700000,4,28,20,0,null,"PHFY","FANTASTIKO.NL","NL SCHEVENINGEN",33],[219027995,52.013912,3.993563,13.367592,252,-80.679253,215,2.604167,false,306,307.700012,17.700001,23,140,10,11,70,1,42,3,"DK",0,5.900000,5,2,9,10,9198721,"OZCL2","FINLANDIA SEAWAYS","NLVLA",35],[244030593,51.963665,4.123500,10.641197,228,-81.652977,14,-0.289352,false,126,127.000000,6.000000,null,null,null,null,0,1,10,3,"NL",0,0.000000,null,null,null,null,null,"","","",36],[244583000,52.100399,4.267450,2.849534,293,-82.382393,3775,2.604167,false,219,78.500000,0.000000,77,38,7,9,30,1,32810,3,"NL",0,7.300000,null,null,null,null,8901913,"PIWT","SCH123 ZEELAND","FISHINGGROUNDS",37],[244900124,51.960800,4.141087,10.286360,225,-83.242020,328,2.314815,false,356,137.199997,0.000000,11,21,6,6,52,1,42,3,"NL",0,5.500000,1,29,10,0,9695509,"PBRR","VB MARS","ROTTERDAM",56],[277574000,51.990967,4.043417,12.180475,243,-80.672348,9,2.025463,false,100,101.200005,17.000000,null,null,null,null,0,1,2,3,"LT",0,0.000000,null,null,null,null,null,"","","",60],[249671000,51.897984,4.231612,11.713382,199,-80.531281,161,2.025463,false,323,207.300003,0.000000,143,53,15,11,71,1,42,3,"MT",5,6.000000,5,3,7,0,9376713,"9HA4331","VESPERTINE","GBPFT",69],[244010219,52.057045,4.347080,1.511741,167,-79.816307,432,1.157407,false,null,334.899994,4.100000,60,10,10,2,8210,1,298,3,"NL",0,2.150000,4,14,23,0,null,"PF5299","REINOD 6","R.DAM HAVENS",80],[538005884,51.957363,4.128585,10.760972,226,-76.516357,500,1.736111,false,331,343.399994,0.000000,201,36,13,27,70,1,40,3,"MH",5,9.700000,4,21,12,30,9643879,"V7GU4","HARVEST FROST","NL RTM",87],[244767000,52.101715,4.267438,2.882055,294,-78.236023,463,2.025463,false,134,8.000000,0.000000,9,19,4,4,90,1,40,3,"NL",5,2.600000,10,29,13,0,8318180,"PBXD","ISIS","SCHEVENINGEN",93],[305440000,51.890491,4.307520,11.534253,185,-83.255112,54,2.604167,false,349,145.800003,3.300000,null,null,null,null,0,1,10,3,"AG",0,0.000000,null,null,null,null,null,"","","",93],[477345300,51.933384,4.187667,10.502087,212,-80.471535,140,1.446759,false,309,306.000000,0.000000,201,24,20,12,70,1,42,3,"HK",5,8.100000,5,2,3,30,9244362,"VRSU4","XIN YU","ROTTERDAM",95],[440032000,51.929241,4.202748,10.434854,208,-74.246880,514,1.157407,false,null,339.700012,0.000000,15,154,25,15,70,1,40,3,"KR",5,7.000000,4,29,5,30,9623219,"D7GU","SUN RISE","NLRTM",96],[246762000,51.970982,4.136675,9.984998,228,-79.587975,162,2.604167,false,129,129.100006,0.000000,15,197,13,13,61,1,16777258,3,"NL",5,5.500000,5,2,7,15,9469376,"PCIY","STENA TRANSPORTER","NL HVH",99],[235018872,52.098202,4.268382,2.768041,291,-82.355408,91,1.446759,false,36,253.900009,0.000000,6,10,3,3,40,1,42,3,"GB",0,2.000000,4,23,19,0,null,"MFFA6","WINDCAT 1","SCHEVENINGEN<>SURVEY",153],[215640000,51.949635,4.063450,12.886663,232,-79.589561,250,2.604167,false,258,4.000000,0.000000,222,72,10,22,70,1,42,3,"MT",5,11.900001,5,1,10,0,9335202,"9HA5221","GSL CHATEAU DIF","BEANR>NLRTM",158],[244791000,51.961716,4.133683,10.443989,226,-81.213219,171,1.736111,false,319,352.000000,1.100000,null,null,null,null,0,1,10,3,"NL",0,0.000000,null,null,null,null,null,"","","",169],[248743000,51.897995,4.229017,11.745496,200,-81.834915,68,1.736111,false,328,318.500000,1.200000,null,null,null,null,0,1,10,3,"MT",0,0.000000,null,null,null,null,null,"","","",175],[245253000,52.174568,4.341823,5.579835,1,-81.784157,1763,-1.446759,false,25,37.299999,2.800000,16,5,3,2,30,1,16777258,3,"NL",0,0.000000,7,6,10,0,8431463,"PDGH","WR14 JOOST","WIERINGEN",187],[310780000,51.893051,4.286700,11.484280,189,-82.856941,98,3.182870,false,342,72.400002,0.000000,30,300,23,21,69,1,40,3,"BM",5,8.600000,4,20,2,0,9802396,"ZCEV9","SKY PRINCESS","NL RTM",203],[538003853,51.898350,4.285417,11.178819,190,-80.263123,143,1.446759,false,111,114.800003,4.500000,149,34,16,16,89,1,42,3,"MH",0,7.000000,4,28,4,0,9489118,"V7TP5","NAVIG8 CONSTELLATION","NLRTM",232],[244697000,51.959850,4.009767,14.175025,239,-81.447884,133,1.157407,false,357,164.000000,0.000000,16,16,6,6,90,1,42,3,"NL",5,5.300000,6,25,13,9,9489936,"PCWG","VB KRACHT","HARBOR OPS",258],[245872000,51.958000,4.074306,12.261670,232,-79.878998,76,2.893518,false,161,178.900009,0.000000,130,12,10,11,70,1,42,3,"NL",5,6.100000,5,1,19,0,9349227,"PDHA","NJORD","NLRTM",259],[992451973,52.409306,4.075568,21.917273,333,-76.460457,165,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZB3","",260],[992446042,52.183750,4.105300,10.554059,305,-76.085602,161,2.314815,false,null,null,null,2,2,2,2,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","OFFSHORE TEST SITE -","",265],[992451974,52.385235,3.949677,23.163628,322,-75.980515,163,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZE4","",265],[992451977,52.256535,3.943923,17.924408,306,-76.104561,161,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZK6","",265],[636022343,51.918770,4.234228,10.510768,201,-81.933899,51,1.157407,false,139,140.600006,10.700000,null,null,null,null,0,1,10,3,"LR",0,0.000000,null,null,null,null,null,"","","",265],[992451978,52.240925,3.948673,17.248238,303,-76.086624,167,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZO5","",265],[992456975,52.257668,4.084667,14.106409,318,-75.902466,166,2.604167,false,null,null,null,40,40,40,40,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","OHVS HZB","",265],[992451981,52.259232,4.121473,13.322521,323,-75.984909,162,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZU1","",265],[992451982,52.340668,4.199128,16.373684,341,-76.820999,163,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZV6","",265],[992446044,52.155315,4.102433,9.759516,297,-76.298347,169,2.314815,false,null,null,null,2,2,2,2,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","OFFSHORE TEST SITE -","",268],[992451980,52.245888,4.104702,13.088939,318,-75.962921,167,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZS2","",269],[992451983,52.419121,4.256488,20.484186,351,-75.890388,161,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZW5","",269],[992451975,52.346073,3.934937,21.733711,317,-76.560036,169,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZF4","",269],[992451976,52.320374,3.926603,20.858374,313,-75.906105,163,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZG6","",269],[992446043,52.174767,4.128083,9.557960,305,-76.271095,167,3.472222,false,null,null,null,2,2,2,2,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","OFFSHORE TEST SITE -","",269],[211266780,52.095329,4.264812,2.836816,286,-77.599617,46,-3.472222,false,null,83.300003,0.000000,17,1,1,5,36,1,17039360,2,"DE",15,0.000000,null,null,null,null,null,"DJGD","GLUECKSBURG","",280],[992456974,52.191116,4.136183,9.936526,311,-76.890106,169,2.893518,false,null,null,null,50,50,50,50,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","Q13A-A PLATFORM","",280],[992451979,52.181721,3.994568,14.024813,295,-76.937698,167,2.893518,false,null,null,null,12,12,12,12,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","WTG HZR6","",280],[992456972,52.319500,4.043167,17.943523,322,-76.096527,163,2.893518,false,null,null,null,40,40,40,40,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","OHVS HZA","",280],[992446045,52.165031,4.078050,10.824848,297,-76.339600,165,2.025463,false,null,null,null,2,2,2,2,0,1,2097152,3,"NL",15,0.000000,null,null,null,null,null,"","OFFSHORE TEST SITE -","",280],[477027300,51.891369,4.452712,12.181418,159,-81.562889,12,0.578704,false,286,333.800018,0.000000,178,22,20,13,70,1,16777256,2,"HK",5,7.800000,4,30,4,0,9747508,"VRPK4","FENG XIU HAI","ROTTERDAM",281],[241771000,51.894905,4.299355,11.305254,187,-80.314735,161,1.157407,false,124,120.300003,3.500000,225,49,21,27,80,1,42,3,"GR",0,14.700000,5,2,10,0,9912141,"SVDL7","PACIFIC","NLRTM",345],[244110640,52.031502,4.024632,11.969265,255,-81.986801,1517,2.025463,false,346,349.700012,11.600000,110,24,11,10,33,1,16777258,3,"NL",0,4.000000,8,16,1,0,9822619,"PDEO","ECODELTA","NLDRTM",372],[205233000,51.899048,4.283203,11.152327,190,-82.418571,7,3.472222,false,115,116.000000,4.600000,null,null,null,null,0,1,10,3,"BE",0,0.000000,null,null,null,null,null,"","","",376],[636093117,51.957668,4.039333,13.324203,236,-82.210724,399,-0.289352,false,82,51.000000,0.100000,212,94,13,27,71,1,42,3,"LR",5,9.800000,5,2,8,0,9400095,"5LGN4","KALAHARI EXPRESS","NLRTM",381],[370084000,52.185661,4.233853,7.337942,328,-80.901047,293,1.736111,false,299,17.800001,0.000000,85,35,13,6,84,1,40,3,"PA",1,5.500000,5,1,19,0,9765079,"HOWM","NEW FRONTIER1","NL SCE",417],[245427000,51.961720,4.139272,10.295141,225,-83.203918,83,1.157407,false,40,96.800003,0.000000,20,12,6,6,52,1,42,3,"NL",8,6.100000,3,31,16,0,9448176,"PDIP","VB STINGRAY","ROTTERDAM",420],[357293000,51.937458,4.053337,13.636572,230,-79.834900,184,1.446759,false,249,7.300000,0.000000,251,41,17,28,70,1,40,3,"PA",5,17.400000,4,24,18,30,9767089,"3EVK9","GOOD HORIZON","NL RTM",459],[538010451,51.965683,4.112566,10.867737,230,-79.134399,154,1.446759,false,114,191.000000,0.000000,251,38,28,17,70,1,42,3,"MH",5,17.800001,4,25,3,0,9336012,"V7A6058","SSI INEVITABLE","NLRTM",469],[249287000,51.984535,4.083218,11.084189,238,-81.123192,85,2.314815,false,288,290.399994,12.800000,null,null,null,null,0,1,10,3,"MT",0,0.000000,null,null,null,null,null,"","","",470],[245676000,52.223240,4.295980,8.643263,349,-82.085350,60,2.025463,false,354,13.000000,6.200000,46,3,2,5,36,1,42,3,"NL",0,2.000000,5,2,17,30,8942979,"PFZT","MINERVA [SV]","IJMUIDEN",477],[538003692,51.883327,4.443813,12.529316,161,-80.965660,176,2.893518,false,247,345.899994,0.000000,151,29,18,12,70,1,42,3,"MH",5,9.700000,5,1,23,45,9482770,"V7SO3","TATE J","NLRTM",508],[245209000,51.931881,4.196350,10.413273,210,-82.232491,23,-0.578704,false,124,130.500000,3.100000,null,null,null,null,0,1,10,2,"NL",0,0.000000,null,null,null,null,null,"","","",588],[205533090,51.923775,4.231083,10.275906,202,-80.861267,1,-0.289352,false,null,325.899994,6.400000,null,null,null,null,0,0,2,1,"BE",0,0.000000,null,null,null,null,null,"","","",670],[244100055,51.892342,4.330280,11.370587,181,-81.410309,2,-0.289352,false,null,86.099998,3.600000,15,13,5,3,99,0,34,3,"NL",0,2.600000,12,25,13,0,9239587,"PE8307","RPA11","ROTTERDAM",694],[249532000,51.959999,4.137100,10.424880,225,-80.501160,543,1.736111,false,110,110.000000,8.800000,10,18,4,6,29,1,42,3,"MT",0,4.600000,12,31,0,0,9402433,"9HB4826","VB SCHELDE","ROTTERDAM",719],[215249000,51.975498,4.029683,13.065122,240,-80.267693,202,2.604167,false,111,179.000000,0.000000,273,90,32,14,71,1,40,3,"MT",5,11.200000,5,1,16,0,9410789,"9HA5028","CMA CGM COLUMBA","NLRTM",722],[255805780,51.948086,4.053955,13.221459,232,-81.046867,34,2.604167,false,78,314.600006,0.000000,187,90,10,30,79,1,40,3,"PT",5,9.000000,5,1,3,0,9290787,"CQDD","PANDA 001","ROTTERDAM",728],[244622000,51.906513,4.260183,10.906169,195,-81.602013,8,4.340278,false,null,118.400002,5.200000,null,null,null,null,0,1,10,3,"NL",5,0.000000,null,null,null,null,null,"","","",761],[244780802,52.201214,4.380083,7.340727,12,-82.431770,1535,-3.182870,false,32,39.799999,2.600000,12,8,4,2,30,1,42,3,"NL",7,1.700000,6,24,12,0,null,"PCSS","WL4 HENDERIKA","PLACE TO BE",782],[538007572,52.182838,4.216348,7.559499,323,-80.068588,275,4.340278,false,270,105.400002,0.000000,148,29,8,20,70,1,40,3,"MH",1,10.100000,5,13,18,0,9594456,"V7GQ4","SEAHORSE","USILM",821],[244740767,52.098919,4.270713,2.704123,292,-82.333748,47,-0.289352,false,null,null,0.000000,null,null,null,null,0,1,8,3,"NL",5,0.000000,null,null,null,null,null,"","","",863],[220589000,51.910839,4.421240,10.703155,163,-81.511055,1,3.182870,false,23,24.900000,2.000000,null,null,null,null,0,0,2,2,"DK",5,0.000000,null,null,null,null,null,"","","",865],[244454000,52.009907,3.971992,14.200069,252,-81.871826,800,-0.289352,false,282,288.399994,8.000000,0,0,0,0,55,1,42,3,"NL",3,5.000000,4,4,19,0,9167966,"PDHT","ARCA","SURVEY",927],[305149000,51.930832,4.195237,10.488415,210,-80.459175,19,2.025463,false,134,127.000000,3.900000,null,null,null,null,0,1,10,3,"AG",0,0.000000,null,null,null,null,null,"","","",983],[244833000,51.905392,4.266333,10.913305,194,-83.617218,4,-0.289352,false,307,308.399994,2.600000,null,null,null,null,0,1,8,2,"NL",3,0.000000,null,null,null,null,null,"","","",983],[244730912,51.895271,4.330122,11.194880,181,-83.051651,1,0.868056,false,null,267.100006,9.000000,null,null,null,null,0,0,2,2,"NL",0,0.000000,null,null,null,null,null,"","","",1007],[244620628,51.931438,4.195827,10.445886,210,-79.394157,1,4.340278,false,null,129.600006,9.000000,null,null,null,null,0,0,2,1,"NL",0,0.000000,null,null,null,null,null,"","","",1007],[305435000,51.900646,4.278710,11.089864,191,-80.519203,59,2.314815,false,116,108.200005,4.100000,null,null,null,null,0,1,10,3,"AG",0,0.000000,null,null,null,null,null,"","","",1047],[255805897,51.959213,4.059542,12.657476,234,-80.660286,33,2.893518,false,263,228.000000,0.000000,109,191,32,16,70,1,40,3,"PT",5,11.300000,5,1,8,30,9720500,"CQYR","MSC SASHA","BEANR>>NLRTM",1083],[219029722,51.916607,4.203681,11.090769,206,-80.837822,66,0.868056,false,359,273.000000,0.000000,122,25,19,3,80,1,42,3,"DK",5,7.000000,5,2,14,0,9909649,"OZBH2","TERN ISLAND","ROTTERDAM",1125],[309504000,52.210094,4.225813,8.756678,331,-82.316612,182,1.446759,false,269,230.400009,0.100000,230,44,33,15,80,1,42,3,"BS",1,9.400001,5,2,4,0,9379210,"C6XA2","SHENLONG SPIRIT","NL RTM > NL SCE",1158],[248352000,51.958633,4.140685,10.389024,224,-81.117058,179,1.736111,false,61,82.300003,7.200000,10,19,10,3,52,1,42,3,"MT",0,6.000000,null,null,null,null,9816658,"9HA4625","ROTTERDAM","R0TTERDAM",1221],[215928000,51.909771,4.257070,10.749287,196,-81.472252,1,3.761574,false,303,303.300018,8.200000,null,null,null,null,0,0,2,1,"MT",0,0.000000,null,null,null,null,null,"","","",1256],[245906000,51.889874,4.307882,11.569871,185,-82.366402,1,2.893518,false,34,28.400000,6.800000,null,null,null,null,0,0,2,1,"NL",0,0.000000,null,null,null,null,null,"","","",1264],[205565000,51.953175,4.138972,10.668566,223,-82.839432,17,1.736111,false,281,16.200001,0.000000,null,null,null,null,0,1,10,3,"BE",0,0.000000,null,null,null,null,null,"","","",1329],[244060924,51.951172,4.075598,12.477501,231,-78.597534,35,2.025463,false,null,null,0.100000,null,null,null,null,0,1,10,3,"NL",5,0.000000,null,null,null,null,null,"","","",1362],[244805000,52.099167,4.269833,2.739846,292,-81.975334,59,2.604167,false,306,193.300003,0.000000,12,8,5,1,34,1,40,3,"NL",5,3.000000,null,null,0,0,8433198,"PHEN","AQUILA","DIVING",1422],[211645160,52.190853,4.299555,6.710873,347,-83.728630,3,-1.157407,false,null,18.700001,6.600000,null,null,null,null,0,1,262144,3,"DE",15,0.000000,null,null,null,null,null,"","","",1431],[249522000,51.937084,4.181016,10.449031,213,-81.349724,245,-3.182870,false,224,274.000000,0.800000,12,16,6,5,52,1,42,3,"MT",0,4.800000,1,1,0,0,9476408,"9HB4830","VB EBRO","SCHIEDAM",1434],[255806413,51.961418,4.139163,10.310786,225,-82.699005,370,-2.893518,false,21,344.700012,0.500000,null,null,null,null,0,1,10,3,"PT",0,0.000000,null,null,null,null,null,"","","",1449],[244850970,51.879192,4.417455,12.502486,166,-81.610458,325,1.736111,false,290,112.099998,0.300000,132,10,10,11,71,1,42,3,"NL",0,5.800000,4,30,9,0,9302243,"PBTF","SVEN D","NLRTM",1573]],"error":false}';
                 ships = JSON.parse(ships_json);
             }
             setPulseOk();
@@ -3074,29 +3525,23 @@
                     c = 60; shipicon = STATICON; break;
             }
 
-            let h = '';
-
             switch (shipicon) {
                 case STATICON:
-                    h = '<DIV CLASS="staticon" style="background-position: -' + c + 'px -20px; transform: translate(-4px,-4px);"></DIV>';
-                    break;
+                    return L.icon({iconUrl: statpng, iconSize: [20, 20], iconAnchor: [10, 10],iconOffset: [c,0],rotationAngle: 0 });
                 case SHIPICON:
                     if (ship.speed != null && ship.speed > 0.5 && ship.cog != null)
-                        h = '<DIV CLASS="shipicon" style="background-position: -' + c + 'px 0; transform: translate(-3px,-3px) rotate(' + ship.cog + 'deg);"></DIV>';
+                        return L.icon({iconUrl: shippng, iconSize: [20, 20], iconAnchor: [10, 10],iconOffset: [c,0],rotationAngle: ship.cog });
                     else
-                        h = '<DIV CLASS="shipicon" style="background-position: -' + c + 'px -20px; transform: translate(-4px,-5px);"></DIV>';
-                    break;
+                        return L.icon({iconUrl: shippng, iconSize: [20, 20], iconAnchor: [10, 10],iconOffset: [c,20],rotationAngle: ship.cog });
                 case PLANEICON:
-                    h = '<DIV CLASS="planeicon" style="background-position: 0px 0; transform: translate(-6px,-6px) rotate(' + ship.cog + 'deg);"></DIV>';
-                    break;
+                    return L.icon({iconUrl: planepng, iconSize: [25, 25], iconAnchor: [12, 12],iconOffset: [0,0],rotationAngle: ship.cog });
                 case HELICOPTERICON:
-                    h = '<DIV CLASS="helicoptericon" style="background-position: 0px 0; transform: translate(-6px,-6px) rotate(' + ship.cog + 'deg);"></DIV>';
-                    break;
+                   return L.icon({iconUrl: helicopterpng, iconSize: [25, 25], iconAnchor: [12, 12],iconOffset: [0,0],rotationAngle: ship.cog });
                 default:
                     console.log("Error: shipicon undefined.");
             }
 
-            return L.divIcon({ html: h, className: 'undefined' });
+            return null;
         }
 
         // Inspired by: https://gis.stackexchange.com/questions/382087/how-to-remove-leaflet-tooltip-label-collision
@@ -3195,6 +3640,8 @@
         }
 
         function updateShipShape(ship) {
+            return;
+
             if (ship.mmsi in ship_shape)
                 if (ship_shape[ship.mmsi] != null)
                     map.removeLayer(ship_shape[ship.mmsi]);
@@ -3203,7 +3650,7 @@
         }
 
         function plotShip(ship) {
-
+            /*
             if (ship.mmsi in markers) {
                 if (ship.mmsi != hover_mmsi) markers[ship.mmsi].setIcon(getIcon(ship)); // bug in leaflet??
                 markers[ship.mmsi].setLatLng([ship.lat, ship.lon]);
@@ -3220,7 +3667,7 @@
                 markers[ship.mmsi].bindTooltip(getTooltipContent(ship), { opacity: 0.85, permanent: false, offset: [15, 0], direction: 'right' });
                 markers[ship.mmsi].closeTooltip();
             }
-
+            */
             updateShipShape(ship);
             if (hover_mmsi == ship.mmsi)
                 setHoverMarker([ship.lat, ship.lon]);
@@ -3547,6 +3994,11 @@
 
             if (shipcardVisible()) populateShipcard();
 
+            shipCanvas.clear();
+            
+            markers_set = [];
+            markers = {}
+
             for (let [mmsi, entry] of Object.entries(shipsDB)) {
                 let ship = entry.raw;
                 if (ship.lat != null && ship.lon != null && ship.lat != 0 && ship.lon != 0 && ship.lat < 90 && ship.lon < 180) {
@@ -3554,9 +4006,24 @@
                         map.panTo(new L.LatLng(ship.lat, ship.lon));
                         settings.setcoord = false;
                     }
-                    plotShip(ship)
+                    let icon = getIcon(ship);
+                    markers[mmsi] = L.marker( [ship.lat, ship.lon], { icon });   
+                    
+                    markers[ship.mmsi].on('click', function (e) {  showShipcard(ship.mmsi); });
+                    markers[ship.mmsi].on('mouseover', function (e) { startHover(ship.mmsi); });
+                    markers[ship.mmsi].on('mouseout', function (e) { endHover(ship.mmsi); });
+                    markers[ship.mmsi].on('contextmenu', function (e) { showContextMenu(event, ship.mmsi, ['mmsi', 'mmsi-map']); });
+                    /*
+                    markers[ship.mmsi].bindTooltip(getTooltipContent(ship), { opacity: 0.85, permanent: false, offset: [15, 0], direction: 'right' });
+                    markers[ship.mmsi].closeTooltip();
+                    */
+                    markers_set.push(markers[mmsi]);
+                    plotShip(ship);
+
                 }
             }
+
+            shipCanvas.addMarkers(markers_set);
 
             for (let [key, m] of Object.entries(markers)) {
                 if (!shipsDB.hasOwnProperty(parseInt(key))) {
@@ -3762,6 +4229,8 @@
             document.getElementById("about_tab").style.display = "none";
             document.getElementById("about_tab_mini").style.display = "none";
         }
+
+        
         main();
 
     </script>
