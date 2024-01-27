@@ -579,7 +579,7 @@
 			transition: transform 0.3s ease-out;
 		}
 
-		.map-button-box.active{
+		.map-button-box.active {
 			transform: translateX(-555px);
 		}
 
@@ -598,8 +598,8 @@
 			height: auto;
 			width: auto;
 			z-index: 100;
-			background-color: #333;
-			color: #fff;
+			background-color: var(--menu-background-color) !important;
+			color: var(--menu-font-color) !important;
 			text-align: center;
 			border-radius: 4px;
 			padding: 5px;
@@ -1055,58 +1055,6 @@
 			}
 		}
 
-		.leaflet-container {
-			background: black;
-			outline: 0;
-		}
-
-		.leaflet-control-layers-toggle,
-		.leaflet-control-settings-toggle {
-			font-size: 18px;
-			min-width: 30px;
-			min-height: 30px;
-			max-width: 30px;
-			max-height: 30px;
-		}
-
-		.leaflet-container .leaflet-control-attribution,
-		.leaflet-control-scale-line,
-		.leaflet-control-layers-toggle,
-		.leaflet-control-settings-toggle,
-		.leaflet-control-layers,
-		.leaflet-bar a.leaflet-disabled,
-		.leaflet-control-zoom a {
-			background-color: var(--leaflet-control-color);
-			color: var(--menu-font-color);
-		}
-
-		.leaflet-control-scale-line {
-			text-shadow: var(--textshadow);
-		}
-
-		.leaflet-control-settings-toggle {
-			text-align: center;
-			color: var(--menu-font-color);
-			transform: translate(200px 0);
-		}
-
-		.leaflet-control-layers-toggle:hover,
-		.leaflet-control-settings-toggle:hover,
-		.leaflet-control-layers:hover,
-		.leaflet-control-zoom a:hover {
-			background-color: var(--menu-background-color);
-		}
-
-		@media (hover: hover) {
-
-			.leaflet-control-layers-toggle:hover,
-			.leaflet-control-settings-toggle:hover,
-			.leaflet-control-layers:hover,
-			.leaflet-control-zoom a:hover {
-				background-color: var(--menu-background-hover-color);
-			}
-		}
-
 		/* Summary tab */
 		.stat-tab {
 			padding: 15px;
@@ -1331,7 +1279,6 @@
 			padding: 0 16px;
 			cursor: pointer;
 			white-space: nowrap;
-			/* Prevent wrapping */
 		}
 
 		#context-menu .divider {
@@ -2522,10 +2469,9 @@
 				<li class="divider table-menu"></li>
 				<li class="ctx-map" onclick="unpinCenter()" id="ctx_menu_unpin"><i class="undo_icon"></i><span
 						id="ctx_unpin">Release map center</span></li>
-				<li class="ctx-map ctx-noalltracks" onclick="showAllTracks(); updateShipcardTrackOption();"><i
-						class="timeline_icon"></i>Show all tracks</li>
-				<li class="ctx-map ctx-removealltracks"
-					onclick="deleteAllTracks(); show_all_tracks=false; updateShipcardTrackOption();"><i
+				<li class="ctx-map ctx-noalltracks" onclick="showAllTracks();"><i class="timeline_icon"></i>Show all
+					tracks</li>
+				<li class="ctx-map ctx-removealltracks" onclick="deleteAllTracks();"><i
 						class="remove_circle_outline_icon"></i>Hide all tracks</li>
 				<li class="ctx-map" onclick="ToggleFireworks()"><i class="explosion_icon"></i><span
 						id="ctx_fireworks"></span></li>
@@ -2978,8 +2924,9 @@
 					<footer id="shipcard_footer" class="shipcard-footer shipcard-max-only">
 						<div title="Center map on current vessel" onclick="mapResetViewZoom(13)"><i
 								class="zoom_in_icon"></i><span>Zoom</span></div>
-						<div id="shipcard_track_option" title="Track of current vessel" onclick="toggleTrackCard()"><i
-								class="timeline_icon"></i><span id="shipcard_track">Track</span></div>
+						<div id="shipcard_track_option" title="Track of current vessel"
+							onclick="toggleTrack(card_mmsi)"><i class="timeline_icon"></i><span
+								id="shipcard_track">Track</span></div>
 					</footer>
 				</aside>
 
@@ -2988,6 +2935,9 @@
 				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box"
 					style=" bottom: 10px;">
 					<div style="border: 1px solid grey; border-radius: 5px; ">
+						<button type="button" onclick="toggleTablecard();" class="btn btn-primary map-button">
+<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M479-418ZM158-200 82-468q-3-12 2.5-28t23.5-22l52-18v-184q0-33 23.5-56.5T240-800h120v-120h240v120h120q33 0 56.5 23.5T800-720v184l52 18q21 8 25 23.5t1 26.5l-76 268q-50 0-91-23.5T640-280q-30 33-71 56.5T480-200q-48 0-89-23.5T320-280q-30 33-71 56.5T158-200ZM80-40v-80h80q42 0 83-13t77-39q36 26 77 38t83 12q42 0 83-12t77-38q36 26 77 39t83 13h80v80h-80q-42 0-82-10t-78-30q-38 20-78.5 30T480-40q-41 0-81.5-10T320-80q-38 20-78 30t-82 10H80Zm160-522 240-78 240 78v-158H240v158Zm240 282q47 0 79.5-33t80.5-89q48 54 65 74t41 34l44-160-310-102-312 102 46 158q24-14 41-32t65-74q50 57 81.5 89.5T480-280Z"/></svg>
+						</button>
 						<button type="button" onclick='showContextMenu(event, "", ["settings", "center", "ctx-map"]);'
 							class="btn btn-primary map-button color-grey">
 							<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
@@ -3012,7 +2962,8 @@
 								<path d="M200-440v-80h560v80H200Z" />
 							</svg>
 						</button>
-						<button type="button" onclick="toggleTablecard();" class="btn btn-primary map-button color-grey">
+						<button type="button" onclick="toggleTablecard();"
+							class="btn btn-primary map-button color-grey">
 							<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
 								<path
 									d="M480-118 120-398l66-50 294 228 294-228 66 50-360 280Zm0-202L120-600l360-280 360 280-360 280Zm0-280Zm0 178 230-178-230-178-230 178 230 178Z" />
@@ -3067,7 +3018,7 @@
 			marker_station = null,
 			marker_focus = null,
 			marker_hover = null,
-			marker_tracks = {},
+			marker_tracks = new Set(),
 			marker_fireworks = [];
 
 		var context_text = "";
@@ -3144,7 +3095,7 @@
 			setMetrics(settings.metric);
 			setDimensionInFeet(settings.dim_in_feet);
 			updateMapLayer();
-			updateTooltips();
+			//updateTooltips();
 			setLabel(settings.label);
 			setTooltipOverlay(settings.tooltipOverlap);
 			setTooltipStyling(settings.tooltipLean);
@@ -3161,7 +3112,7 @@
 			settings.tab = t;
 			settings.welcome = false;
 
-			refresh_data();
+			redrawMap();
 		}
 
 		// some functions useful in plugins
@@ -3316,12 +3267,12 @@
 			var w = Number(settings.track_weight);
 			var c = settings.track_color;
 
-			if(feature.mmsi == hoverMMSI) {
-				c = 'orange';
+			if (feature.mmsi == hoverMMSI) {
+				c = settings.shiphover_color;
 				w = w + 2;
 			}
-			if(feature.mmsi == card_mmsi) {
-				c = 'red';
+			if (feature.mmsi == card_mmsi) {
+				c = settings.shipselection_color;
 				w = w + 2;
 			}
 
@@ -3364,25 +3315,29 @@
 			});
 		};
 
-		hoverCircleStyle = new ol.style.Style({
-			image: new ol.style.Circle({
-				radius: 20,
-				stroke: new ol.style.Stroke({
-					color: 'orange',
-					width: 5
+		hoverCircleStyleFunction = function (feature) {
+			return new ol.style.Style({
+				image: new ol.style.Circle({
+					radius: 20,
+					stroke: new ol.style.Stroke({
+						color: settings.shiphover_color,
+						width: 5
+					})
 				})
-			})
-		});
+			});
+		}
 
-		selectCircleStyle = new ol.style.Style({
-			image: new ol.style.Circle({
-				radius: 15,
-				stroke: new ol.style.Stroke({
-					color: 'red',
-					width: 5
+		selectCircleStyleFunction = function (feature) {
+			return new ol.style.Style({
+				image: new ol.style.Circle({
+					radius: 15,
+					stroke: new ol.style.Stroke({
+						color: settings.shipselection_color,
+						width: 5
+					})
 				})
-			})
-		});
+			});
+		}
 
 		var markerVector = new ol.source.Vector({
 			features: []
@@ -3576,7 +3531,7 @@
 	*/
 			}
 
-			if (show_all_tracks || Object.keys(marker_tracks).length > 0) {
+			if (show_all_tracks || marker_tracks.size > 0) {
 				document.querySelectorAll(".ctx-removealltracks").forEach(function (element) {
 					element.style.display = "flex";
 				});
@@ -3587,7 +3542,7 @@
 			}
 
 			document.getElementById("ctx_menu_unpin").style.display = settings.fix_center && context.includes("ctx-map") ? "flex" : "none";
-			document.getElementById("ctx_track").innerText = context_mmsi in marker_tracks && context.includes("mmsi-map") ? "Hide Track" : "Show Track";
+			document.getElementById("ctx_track").innerText = marker_tracks.has(Number(context_mmsi)) && context.includes("mmsi-map") ? "Hide Track" : "Show Track";
 
 			contextMenu.style.display = "block";
 
@@ -3954,108 +3909,15 @@
 			});
 		}
 
-		/*
-		function initMap() {
-			map = L.map("map", { preferCanvas: false, zoomControl: false, zoomSnap: 0.01 }).setView([settings.lat, settings.lon], settings.zoom);
-			var control = L.control.layers(basemaps, overlapmaps, { title: "Select map and overlays", position: "bottomright" }).addTo(map);
-
-			map.on("baselayerchange", function (event) {
-				if (settings.dark_mode) settings.map_night = event.name;
-				else settings.map_day = event.name;
-				setMapOpacity();
-				saveSettings();
-			});
-
-			map.on("overlayadd", function (event) {
-				if (settings.dark_mode) {
-					if (!settings.map_night_overlay.includes(event.name)) settings.map_night_overlay.push(event.name);
-				} else {
-					if (!settings.map_day_overlay.includes(event.name)) settings.map_day_overlay.push(event.name);
-				}
-
-				setMapOpacity();
-				saveSettings();
-			});
-
-			map.on("overlayremove", function (event) {
-				if (settings.dark_mode) {
-					if (settings.map_night_overlay.includes(event.name)) settings.map_night_overlay.splice(settings.map_night_overlay.indexOf(event.name), 1);
-				} else {
-					if (settings.map_day_overlay.includes(event.name)) settings.map_day_overlay.splice(settings.map_day_overlay.indexOf(event.name), 1);
-				}
-
-				setMapOpacity();
-				saveSettings();
-			});
-
-			map.on("mousemove", function (evt) {
-				debouncedSaveSettings();
-			});
-
-			map.on("zoomend", function (evt) {
-				debouncedSaveSettings();
-				updateTooltips();
-
-				var currentZoomLevel = map.getZoom();
-
-				if (currentZoomLevel < 14) {
-					map.getPane('shapePane').style.display = 'none';
-				} else {
-					map.getPane('shapePane').style.display = '';
-				}
-			});
-
-			map.on("click", function () {
-				if (singleClickTimeout == null) {
-					singleClickTimeout = setTimeout(() => {
-						showShipcard(null);
-						hideMenuifSmall();
-						closeDialog();
-						singleClickTimeout = null;
-					}, 400);
-				}
-			});
-
-			map.on("dblclick dragstart zoomstart", function () {
-				if (singleClickTimeout != null) {
-					clearTimeout(singleClickTimeout);
-					singleClickTimeout = null;
-				}
-			});
-
-			map.on("dragstart zoomstart", function () {
-				mapinteraction = true;
-			});
-
-			map.on("dragend zoomend", function () {
-				mapinteraction = false;
-			});
-
-			map.addControl(new L.Control.Zoom({ position: "bottomright" }));
-			L.control.scale().addTo(map);
-
-			addMapLayer();
-
-			map.createPane("locationMarker");
-			map.getPane("locationMarker").style.zIndex = 999;
-
-			map.createPane("shapePane");
-			map.getPane("shapePane").style.zIndex = 525;
-
-			map.createPane("stationPane");
-			map.getPane("stationPane").style.zIndex = 550;
-
-			L.DomEvent.disableClickPropagation(document.getElementById("shipcard"));
-
-			addWrenchControl();
-			addMarkerCount();
-			// addFilterControl();
-			addTableControl();
-		}
-		*/
-
+		var clickTimeout = undefined;
 
 		const handleClick = function (pixel, target) {
+			if (clickTimeout) {
+				clearTimeout(clickTimeout);
+				clickTimeout = null;
+				return;
+			}
+
 			const feature = target.closest('.ol-control') ? undefined : map.forEachFeatureAtPixel(pixel,
 				function (feature) { if ('shipname' in feature) { return feature; } }, { hitTolerance: 10 });
 
@@ -4063,9 +3925,14 @@
 				showShipcard(feature.mmsi);
 			}
 			else {
-				showShipcard(null);
-				hideMenuifSmall();
-				closeDialog();
+				clickTimeout = setTimeout(function () {
+					showShipcard(null);
+					hideMenuifSmall();
+					closeDialog();
+					clickTimeout = null;
+				}, 300);
+
+
 			}
 		};
 
@@ -4378,15 +4245,15 @@
 
 					row.addEventListener("mouseover", function (e) {
 						startHover(ship.mmsi);
-						L.DomEvent.stopPropagation(e);
+						//L.DomEvent.stopPropagation(e);
 					});
 					row.addEventListener("mouseout", function (e) {
-						endHover(ship.mmsi);
-						L.DomEvent.stopPropagation(e);
+						stopHover();
+						//L.DomEvent.stopPropagation(e);
 					});
 					row.addEventListener("click", function (e) {
 						showShipcard(ship.mmsi);
-						L.DomEvent.stopPropagation(e);
+						//L.DomEvent.stopPropagation(e);
 					});
 					row.addEventListener("contextmenu", function (e) {
 						showContextMenu(event, ship.mmsi, ["mmsi", "mmsi-map"]);
@@ -5227,71 +5094,8 @@
 			settings[a] = v;
 			saveSettings();
 
-			clearFocusMarker();
 			clearHoverMarker();
-			refresh_data();
-		}
-
-		function drawShipOutline(ship) {
-			if (ship == null) return;
-
-			let style = {};
-
-			const latlng = L.latLng(ship.lat, ship.lon);
-			const to_bow = ship.to_bow,
-				to_stern = ship.to_stern,
-				to_port = ship.to_port,
-				to_starboard = ship.to_starboard;
-			let heading = ship.heading;
-			let opacity = getShipOpacity(ship);
-			let fillOpacity = settings.shipoutline_opacity * opacity;
-
-			if (to_bow == null || to_stern == null || to_port == null || to_starboard == null) return;
-
-			if (heading == null) {
-				style.dashArray = "5, 5";
-				style.dashOffset = "0";
-
-				if (ship.cog != null && ship.speed > 1) heading = ship.cog;
-				fillOpacity = 0.2 * settings.shipoutline_opacity * opacity;
-			}
-
-			let col = { color: settings.shipoutline_border, fillColor: settings.shipoutline_inner };
-			if (ship.mmsi == hover_mmsi) col = { color: settings.shiphover_color, fillColor: settings.shipoutline_inner };
-			else if (ship.mmsi == card_mmsi) col = { color: settings.shipselection_color, fillColor: settings.shipoutline_inner };
-
-			if (heading != null) {
-				const deltaBow = calcOffset1M(latlng, heading % 360);
-				const deltaStarboard = calcOffset1M(latlng, (heading + 90) % 360);
-
-				const bow = calcMove(latlng, deltaBow, to_bow);
-				const stern = calcMove(latlng, deltaBow, -to_stern);
-
-				const A = calcMove(stern, deltaStarboard, to_starboard);
-				const B = calcMove(stern, deltaStarboard, -to_port);
-				const C = calcMove(B, deltaBow, 0.8 * (to_bow + to_stern));
-				const Dmid = calcMove(C, deltaStarboard, 0.5 * (to_starboard + to_port));
-				const D = calcMove(Dmid, deltaBow, 0.2 * (to_bow + to_stern));
-				const E = calcMove(C, deltaStarboard, to_starboard + to_port);
-
-				const ship_outline = [];
-
-				ship_outline.push(A);
-				ship_outline.push(B);
-				ship_outline.push(C);
-				ship_outline.push(D);
-				ship_outline.push(E);
-
-				return L.polygon(ship_outline, { pane: 'shapePane', ...col, fillOpacity: fillOpacity, opacity: opacity, ...style }).addTo(map);
-			}
-
-			const a = Math.max(to_bow, to_stern);
-			const b = Math.max(to_starboard, to_port);
-			const r = Math.sqrt(a * a + b * b);
-
-			if (r < 2 || r > 300) return null;
-
-			return L.circle(latlng, { pane: 'shapePane', radius: r, ...col, fillOpacity: fillOpacity, opacity: opacity, ...style }).addTo(map);
+			redrawMap();
 		}
 
 		function average(d) {
@@ -6319,56 +6123,6 @@
 			showDialog("Warning", "Not implemented yet");
 		}
 
-		/*
-		function startHover(m) {
-			if (hover_mmsi != null) endHover(hover_mmsi);
-
-			if (mapinteraction) return;
-			if (!(m in markers)) return;
-
-			hover_mmsi = m;
-
-			if (!settings.labels) {
-				if (hover_mmsi != null) {
-					if (!markers[hover_mmsi].getTooltip()) createTooltip(shipsDB[hover_mmsi].raw);
-					markers[hover_mmsi].openTooltip();
-				}
-			} else {
-				if (!settings.tooltipOverlap) updateTooltips();
-			}
-
-			if (!(hover_mmsi in shipsDB)) return;
-
-			let ship = shipsDB[hover_mmsi].raw;
-
-			plotShip(ship);
-			removeTrack(hover_mmsi);
-			plotTrack(hover_mmsi);
-		}
-
-		function endHover(m) {
-			m = hover_mmsi;
-			hover_mmsi = null;
-
-			if (!settings.labels) {
-				if (m != null && m in markers) {
-					markers[m].closeTooltip();
-					if (!settings.labels) markers[m].unbindTooltip();
-				}
-			} else {
-				if (!settings.tooltipOverlap) updateTooltips();
-			}
-
-			if (m in shipsDB) {
-				let ship = shipsDB[m].raw;
-				if (ship) plotShip(ship);
-			}
-
-			removeTrack(m);
-			plotTrack(m);
-			clearHoverMarker();
-		}
-*/
 
 		const stopHover = function () {
 			info.style.visibility = 'hidden';
@@ -6380,17 +6134,6 @@
 			hoverMMSI = undefined;
 			updateHoverMarker();
 			trackLayer.changed();
-		}
-
-		const info = document.getElementById('hover-info');
-
-		function clearFocusMarker() {
-			/*
-			if (marker_focus != null) {
-				map.removeLayer(marker_focus);
-				marker_focus = null;
-			}
-			*/
 		}
 
 		function updateFocusMarker() {
@@ -6411,35 +6154,52 @@
 
 				const center = ol.proj.fromLonLat([shipsDB[card_mmsi].raw.lon, shipsDB[card_mmsi].raw.lat]);
 				selectCircleFeature = new ol.Feature(new ol.geom.Point(center));
-				selectCircleFeature.setStyle(selectCircleStyle);
+				selectCircleFeature.setStyle(selectCircleStyleFunction);
 				selectCircleFeature.mmsi = card_mmsi;
 				extraVector.addFeature(selectCircleFeature);
 			}
 		}
 
-		const startHover = function (pixel, mmsi) {
-			info.style.left = pixel[0] + 'px';
-			info.style.top = pixel[1] + 'px';
+		const info = document.getElementById('hover-info');
+
+		const startHover = function (mmsi, pixel = undefined) {
+
+			if (pixel) {
+				info.style.left = pixel[0] + 'px';
+				info.style.top = pixel[1] + 'px';
+			}
+
 			if (mmsi !== hoverMMSI) {
 				if (hoverMMSI || hoverCircleFeature) {
 					stopHover();
 				}
 
-				if (mmsi in shapeFeatures) {
-					shapeFeatures[mmsi].changed();
-				}
-
 				if (mmsi in shipsDB) {
-					info.style.visibility = 'visible';
-					info.innerText = shipsDB[mmsi].raw.shipname || shipsDB[mmsi].raw.mmsi;
 					hoverMMSI = mmsi;
+					info.innerHTML = getTooltipContent(shipsDB[mmsi].raw);
+
+					if (!pixel) {
+						const center = ol.proj.fromLonLat([shipsDB[mmsi].raw.lon, shipsDB[mmsi].raw.lat]);
+						pixel = map.getPixelFromCoordinate(center);
+						info.style.left = pixel[0] + 'px';
+						info.style.top = pixel[1] + 'px';
+					}
+
+					if (pixel[0] >= 0 || pixel[0] <= map.getSize()[0] || pixel[1] >= 0 || pixel[1] <= map.getSize()[1]) {
+						info.style.visibility = 'visible';
+					}
 				}
 			}
+
 			updateHoverMarker();
 			trackLayer.changed();
+			if (mmsi in shapeFeatures) {
+				shapeFeatures[mmsi].changed();
+			}
 		}
 
 		function updateHoverMarker() {
+
 			if (hoverCircleFeature) {
 				if (hoverMMSI in shipsDB) {
 					const center = ol.proj.fromLonLat([shipsDB[hoverMMSI].raw.lon, shipsDB[hoverMMSI].raw.lat]);
@@ -6458,7 +6218,7 @@
 
 				const center = ol.proj.fromLonLat([shipsDB[hoverMMSI].raw.lon, shipsDB[hoverMMSI].raw.lat]);
 				hoverCircleFeature = new ol.Feature(new ol.geom.Point(center));
-				hoverCircleFeature.setStyle(hoverCircleStyle);
+				hoverCircleFeature.setStyle(hoverCircleStyleFunction);
 				hoverCircleFeature.mmsi = hoverMMSI;
 				extraVector.addFeature(hoverCircleFeature);
 			}
@@ -6474,7 +6234,7 @@
 			const mmsi = getFeatureMMSI(pixel, target)
 
 			if (mmsi) {
-				startHover(pixel, mmsi);
+				startHover(mmsi, pixel);
 			} else if (hoverMMSI) {
 				stopHover();
 			}
@@ -6498,6 +6258,7 @@
 			let newURL = window.location.href.split("?")[0] + "?lat=" + view.getCenter()[1].toFixed(4) + "&lon=" + view.getCenter()[0].toFixed(4) + "&zoom=" + view.getZoom().toFixed(2) + "&tab=" + settings.tab;
 			history.replaceState(null, null, newURL);
 		}
+
 		function saveSettings() {
 			if (map !== undefined) {
 				var view = map.getView();
@@ -6566,54 +6327,16 @@
 			settings.dim_in_feet = settings.dim_in_feet == "true" || settings.dim_in_feet == true;
 		}
 
-		function updateShipShape(ship) {
-			if (ship.mmsi in ship_shape && ship_shape[ship.mmsi] != null) map.removeLayer(ship_shape[ship.mmsi]);
-
-			if (ship.mmsi in markers) ship_shape[ship.mmsi] = drawShipOutline(ship);
-		}
-
-		function plotShip(ship) {
-			if (ship.mmsi in markers) {
-				if (ship.mmsi != hover_mmsi) markers[ship.mmsi].setIcon(getIcon(ship)); // bug in leaflet??
-				markers[ship.mmsi].setLatLng([ship.lat, ship.lon]);
-				if (markers[ship.mmsi].getTooltip()) markers[ship.mmsi].getTooltip().setContent(getTooltipContent(ship));
-			} else {
-				markers[ship.mmsi] = L.marker([ship.lat, ship.lon], { icon: getIcon(ship) }).addTo(map);
-
-				markers[ship.mmsi].on("click", function (e) {
-					showShipcard(ship.mmsi);
-				});
-				markers[ship.mmsi].on("mouseover", function (e) {
-					startHover(ship.mmsi);
-				});
-				markers[ship.mmsi].on("mouseout", function (e) {
-					endHover(ship.mmsi);
-				});
-				markers[ship.mmsi].on("contextmenu", function (e) {
-					showContextMenu(event, ship.mmsi, ["mmsi", "mmsi-map"]);
-				});
-			}
-
-			updateShipShape(ship);
-			if (hover_mmsi == ship.mmsi) setHoverMarker([ship.lat, ship.lon]);
-		}
-
-		function mapResetViewZoom(z, m) {
-			if (m && m in shipsDB) {
+		function mapResetViewZoom(z, m = card_mmsi) {
+			if (m && m in shipsDB && shipsDB[m].raw.lat != null && shipsDB[m].raw.lon != null) {
 				let ship = shipsDB[m].raw;
 				let newZoom = Math.min(Math.max(z, map.getView().getZoom() + 1), map.getView().getMaxZoom());
 				map.getView().animate({
 					center: ol.proj.fromLonLat([ship.lon, ship.lat]),
 					zoom: newZoom
 				});
-			} else if (marker_focus != null) {
-				let focusCoords = marker_focus.getGeometry().getCoordinates();
-				let newZoom = Math.min(Math.max(z, map.getView().getZoom() + 1), map.getView().getMaxZoom());
-				map.getView().animate({
-					center: focusCoords,
-					zoom: newZoom
-				});
 			}
+
 			shipcardMinIfMaxonMobile();
 		}
 
@@ -6631,19 +6354,20 @@
 		}
 
 		async function toggleTrack(m) {
-			if (m in marker_tracks) {
-				removeTrack(m);
-				deletePath(m);
+
+			if (marker_tracks.has(Number(m))) {
+				marker_tracks.delete(Number(m));
+				redrawMap();
 			} else {
-				await showTrack(m);
+				marker_tracks.add(m);
+				fetchTracks();
 				shipcardMinIfMaxonMobile();
+				redrawMap();
 			}
-		}
 
-		async function toggleTrackCard() {
-			toggleTrack(card_mmsi);
-
-			document.getElementById("shipcard_track").innerText = card_mmsi in marker_tracks ? "Hide Track" : "Show Track";
+			if (card_mmsi == m) {
+				document.getElementById("shipcard_track").innerText = marker_tracks.has(Number(card_mmsi)) ? "Hide Track" : "Show Track";
+			}
 		}
 
 		function pinStation() {
@@ -6663,160 +6387,36 @@
 			plotStation();
 		}
 
-		function removeTrack(m) {
-			if (m in marker_tracks) {
-				map.removeLayer(marker_tracks[m]);
-				delete marker_tracks[m];
-				if (m == card_mmsi) document.getElementById("shipcard_track").innerText = "Show Track";
-			}
-		}
-
-		function deletePath(m) {
-			if (m in paths) delete paths[m];
-		}
-
-		function removeAllTracks() {
-			for (var m in marker_tracks) {
-				removeTrack(m);
-			}
-		}
 
 		function showAllTracks() {
 			show_all_tracks = true;
 			fetchTracks();
+			redrawMap();
+			updateShipcardTrackOption()
 		}
 
 		function deleteAllTracks() {
-			removeAllTracks();
 			paths = {};
-		}
-
-		function plotTrack(m) {
-			if (m == null || !(m in markerFeatures) || !(m in paths)) return;
-
-			//clusters
-			var xmin = 42;
-			var xmax = 50;
-			var ymin = 0;
-			var ymax = 8;
-
-			var points = [];
-			for (i = 0; i < 100; i++) {
-				var xx = Math.random() * (xmax - xmin) + xmin;
-				var yy = Math.random() * (ymax - ymin) + ymin;
-				points.push(ol.proj.transform([xx, yy], 'EPSG:4326', 'EPSG:3857'));
-				var point = new ol.geom.Point([xx, yy]).transform('EPSG:4326', 'EPSG:3857');
-				var fea = new ol.Feature({ geometry: point });
-			}
-
-
-			var thing = new ol.geom.MultiLineString([points]);
-			var featurething = new ol.Feature({
-				name: "Thing",
-				geometry: thing,
-				style: new ol.style.Style({
-					stroke: new ol.style.Stroke({
-						color: 'red'
-					})
-				})
-			});
-			trackVector.addFeature(featurething);
-
-			const path = paths[m];
-			const coordinates = [];
-			var points = [];
-			for (var i = 0; i < Math.min(path.length, 250); i++) {
-				// Assuming path[i] is an array of [lat, lon], OpenLayers uses [lon, lat] format
-				coordinates.push(ol.proj.fromLonLat([path[i][1], path[i][0]]));
-				var point = new ol.geom.Point([path[i][0], path[i][1]]).transform('EPSG:4326', 'EPSG:3857');
-				points.push(point);
-
-			}
-			var thing = new ol.geom.LineString(points);
-			var featurething = new ol.Feature({
-				name: "Thing",
-				geometry: thing,
-				style: new ol.style.Style({
-					stroke: new ol.style.Stroke({
-						color: 'red'
-					})
-				})
-			});
-			markerVector.addFeature(featurething);
-
-			let w = Number(settings.track_weight);
-			let strokeStyle;
-
-			if (m == hoverMMSI) {
-				strokeStyle = new ol.style.Stroke({
-					color: settings.track_color,
-					width: 2 * w,
-					opacity: 0.85
-				});
-			} else {
-				strokeStyle = new ol.style.Stroke({
-					color: settings.track_color,
-					width: w,
-					opacity: 0.7
-				});
-			}
-
-
-
-			const transformedCoordinates = coordinates;//.map(coord => ol.proj.fromLonLat([coord[1], coord[0]]));
-
-			// Create a LineString geometry
-			const lineString = new ol.geom.LineString(transformedCoordinates);
-
-			// Create a feature with the geometry
-			const feature = new ol.Feature(lineString);
-
-			// Style for the polyline
-			const lineStyle = new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: '#ffcc33',
-					width: 2
-				})
-			});
-			feature.setStyle(lineStyle);
-
-			//			feature.setStyle(new ol.style.Style({ stroke: strokeStyle }));
-
-			trackVector.addFeature(feature);
-
-			if (m == card_mmsi) document.getElementById("shipcard_track").innerText = "Hide Track";
-		}
-
-
-		async function showTrack(m) {
-			try {
-				a = await fetch("path.json?" + m);
-				p = await a.json();
-			} catch (error) {
-				console.log("Error loading path: " + error);
-				return;
-			}
-
-			if (m in p) {
-				paths[m] = p[m];
-			} else {
-				console.log("No path found for " + m);
-				return;
-			}
-
-			removeTrack(m);
-			plotTrack(m);
-
-			if (m == card_mmsi) document.getElementById("shipcard_track").innerText = "Hide Track";
+			marker_tracks = new Set();
+			show_all_tracks = false;
+			redrawMap();
+			updateShipcardTrackOption();
 		}
 
 		async function fetchTracks() {
-			if (Object.keys(markerFeatures).length == 0 && show_all_tracks == false) return true;
+			if (marker_tracks.size == 0 && show_all_tracks == false) return true;
 
 			try {
 				if (show_all_tracks) a = await fetch("allpath.json");
 				else {
-					var mmsi_str = Object.keys(marker_tracks).join(",");
+
+					for (var mmsi of marker_tracks) {
+						if (!(mmsi in shipsDB)) {
+							toggleTrack(mmsi);
+						}
+					}
+
+					var mmsi_str = Array.from(marker_tracks).join(",");
 					a = await fetch("path.json?" + mmsi_str);
 				}
 				paths = await a.json();
@@ -6850,19 +6450,11 @@
 			return e.contains("shipcard-ismax");
 		}
 
-
 		function clearHoverMarker() {
 			if (marker_hover != null) {
 				map.removeLayer(marker_hover);
 				marker_hover = null;
 			}
-		}
-
-		function setHoverMarker(latlon) {
-			if (marker_hover == null) {
-				marker_hover = L.circleMarker(latlon, { interactive: false, color: settings.shiphover_color, radius: 16, weight: 4, fillOpacity: 0, pane: "locationMarker" });
-				marker_hover.addTo(map);
-			} else marker_hover.setLatLng(latlon);
 		}
 
 		function getStringfromMsgType(m) {
@@ -6932,8 +6524,6 @@
 				document.getElementById("shipcard_mmsi").innerHTML = card_mmsi;
 
 				updateFocusMarker();
-				removeTrack(card_mmsi);
-				deletePath(card_mmsi);
 				return;
 			}
 
@@ -6978,7 +6568,7 @@
 					? getDimVal(ship.to_bow + ship.to_stern) + " " + getDimUnit() + " x " + getDimVal(ship.to_port + ship.to_starboard) + " " + getDimUnit()
 					: null;
 
-			document.getElementById("shipcard_track").innerText = card_mmsi in marker_tracks ? "Hide Track" : "Show Track";
+			document.getElementById("shipcard_track").innerText = marker_tracks.has(Number(card_mmsi)) ? "Hide Track" : "Show Track";
 		}
 
 		function shipcardMinIfMaxonMobile() {
@@ -7101,7 +6691,6 @@
 				markers[key].unbindTooltip();
 				createTooltip(shipsDB[key].raw);
 			}
-			updateTooltips();
 		}
 
 		function toggleTooltipStyling() {
@@ -7340,21 +6929,23 @@
 
 
 			for (let [mmsi, entry] of Object.entries(paths)) {
-				const path = paths[mmsi];
-				const coordinates = [];
-				for (var i = 0; i < Math.min(path.length, 250); i++) {
-					coordinates.push(ol.proj.fromLonLat([path[i][1], path[i][0]]));
-				}
 
-				const lineString = new ol.geom.LineString(coordinates);
-				const feature = new ol.Feature(lineString);
-				feature.mmsi = mmsi;
-				trackVector.addFeature(feature);
+				if (marker_tracks.has(Number(mmsi)) || show_all_tracks) {
+					const path = paths[mmsi];
+					const coordinates = [];
+					for (var i = 0; i < Math.min(path.length, 250); i++) {
+						coordinates.push(ol.proj.fromLonLat([path[i][1], path[i][0]]));
+					}
+
+					const lineString = new ol.geom.LineString(coordinates);
+					const feature = new ol.Feature(lineString);
+					feature.mmsi = mmsi;
+					trackVector.addFeature(feature);
+				}
 			}
 
 			updateFocusMarker();
 			updateHoverMarker();
-
 
 			updateMarkerCount();
 			updateTablecard();
@@ -7452,7 +7043,7 @@
 			if (z) mapResetView(z);
 			else mapResetView(14);
 
-			showTrack(m);
+			//showTrack(m);
 		}
 
 		function updateSettingsTab() {
