@@ -43,7 +43,6 @@
 			--light-gray: lightgray;
 			--header-font-color: white;
 			--menu-background-color: white;
-			--leaflet-control-color: white;
 			--menu-divider-color: #ccc;
 			--menu-border-color: #ccc;
 			--dialog-title-color: var(--secondary-color);
@@ -115,7 +114,6 @@
 			--light-gray: lightgray;
 			--header-font-color: #f8f9fa;
 			--menu-background-color: rgb(41, 41, 41);
-			--leaflet-control-color: rgb(60, 60, 60);
 			--menu-border-color: rgb(17, 17, 17);
 			--dialog-title-color: rgb(50, 50, 50);
 			--menu-divider-color: rgb(17, 17, 17);
@@ -569,7 +567,7 @@
 		}
 
 		.map-button-box {
-			border: 1px solid grey;
+			border: 2px solid var(--menu-border-color);
 			border-radius: 5px;
 			position: absolute;
 			right: 10px;
@@ -592,11 +590,14 @@
 			background-color: var(--menu-background-color) !important;
 			fill: var(--menu-font-color) !important;
 			color: var(--menu-font-color) !important;
+			border-radius: inherit !important;
 		}
 
 		#hover-info {
 			position: absolute;
-			display: inline-block;
+			display: flex;
+			flex-direction: row;
+			flex: 0 0 auto;
 			height: auto;
 			width: auto;
 			z-index: 100;
@@ -609,6 +610,14 @@
 			transform: translateX(3%);
 			visibility: hidden;
 			pointer-events: none;
+		}
+
+		#hover-info div div {
+			text-align: left;
+		}
+
+		#hover-info div span {
+			font-size: 34px;
 		}
 
 		.fill-red {
@@ -1189,62 +1198,6 @@
 			margin-right: 10px;
 		}
 
-		.leaflet-tooltip .flag-icon {
-			font-size: 12px;
-			vertical-align: middle;
-			margin-right: 5px;
-		}
-
-		.leaflet-tooltip {
-			background-color: var(--tooltip-background-color) !important;
-			color: var(--menu-font-color) !important;
-			border-color: var(--tooltip-border-color);
-		}
-
-		.leaflet-tooltip:before {
-			border-color: transparent var(--tooltip-background-color) transparent transparent;
-		}
-
-		.leaflet-tooltiplabel {
-			background-color: transparent !important;
-			color: var(--tooltip-font-color) !important;
-			text-shadow:
-				2px 0 var(--label-shadow-color),
-				-2px 0 var(--label-shadow-color),
-				0 2px var(--label-shadow-color),
-				0 -2px var(--label-shadow-color),
-				1px 1px var(--label-shadow-color),
-				-1px -1px var(--label-shadow-color),
-				1px -1px var(--label-shadow-color),
-				-1px 1px var(--label-shadow-color) !important;
-			border: none;
-			box-shadow: none;
-			font-size: 10px;
-			padding: 3px;
-		}
-
-		.leaflet-tooltiplabel span:nth-child(1),
-		.leaflet-tooltiplabel span:nth-child(3) {
-			display: none;
-		}
-
-		.leaflet-tooltiplabel:before {
-			display: none;
-		}
-
-		@media only screen and (max-width: 750px) {
-
-			.leaflet-tooltip,
-			.leaflet-tooltiplabel {
-				font-size: 8px;
-				padding: 3px;
-			}
-
-			.leaflet-tooltip .flag-icon {
-				font-size: 8px;
-			}
-		}
-
 		.blue {
 			color: #12a5ed;
 		}
@@ -1265,7 +1218,7 @@
 			color: lightgrey;
 		}
 
-		#context-menu {
+		.floating-menu {
 			position: fixed;
 			display: none;
 			background-color: var(--menu-background-color);
@@ -1281,7 +1234,7 @@
 			margin: 0;
 		}
 
-		#context-menu li {
+		.floating-menu li {
 			display: flex;
 			align-items: center;
 			height: 24px;
@@ -1291,28 +1244,28 @@
 			white-space: nowrap;
 		}
 
-		#context-menu .divider {
+		.floating-menu .divider {
 			height: 1px;
 			background-color: var(--menu-divider-color);
 			margin: 0.5rem 0;
 			pointer-events: none;
 		}
 
-		#context-menu li:hover {
+		.floating-menu li:hover {
 			background-color: var(--menu-background-hover-color);
 		}
 
-		#context-menu i {
+		.floating-menu i {
 			margin-right: 8px;
 			font-size: 16px;
 			width: 16px;
 		}
 
-		#context-menu .dynamic-item {
+		.floating-menu .dynamic-item {
 			color: #666;
 		}
 
-		#context-menu .dynamic-item:hover {
+		.floating-menu .dynamic-item:hover {
 			background-color: transparent;
 		}
 
@@ -1425,16 +1378,6 @@
 			border-radius: 50%;
 			opacity: 75%;
 			z-index: -1;
-		}
-
-		.leaflet-control-layers-toggle {
-			--svg: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"%3E%3Cpath d="M480-130 120-410l50-37 310 241 310-241 50 37-360 280Zm0-152L120-562l360-280 360 280-360 280Zm0-301Zm0 225 262-204-262-204-262 204 262 204Z"/%3E%3C/svg%3E');
-			-webkit-mask-image: var(--svg);
-			mask-image: var(--svg);
-			-webkit-mask-repeat: no-repeat;
-			mask-repeat: no-repeat;
-			-webkit-mask-size: 100% 100%;
-			mask-size: 100% 100%;
 		}
 
 		.filter_alt_icon {
@@ -2126,22 +2069,6 @@
 			}
 		}
 
-		.leaflet-control-layers {
-			transition: transform 0.3s ease-out;
-		}
-
-		.leaflet-control-layers.active {
-			transform: translateX(-555px);
-		}
-
-		.leaflet-control-zoom {
-			transition: transform 0.3s ease-out;
-		}
-
-		.leaflet-control-zoom.active {
-			transform: translateX(-555px);
-		}
-
 		.settings_main {
 			flex: 0 0 1;
 			overflow: auto;
@@ -2469,7 +2396,10 @@
 		</div>
 
 		<div oncontextmenu="showContextMenu(event,0,['settings'])" class="mainspace">
-			<ul id="context-menu">
+			<ul class="floating-menu" id="mapselection-menu">
+			</ul>
+			
+			<ul class="floating-menu" id="context-menu">
 				<li class="station" onclick="pinStation()"><i class="push_pin_icon"></i>Center map on station</li>
 				<li class="divider station"></li>
 				<li class="copy-text" onclick="copyText(context_mmsi)"><i class="content_copy_icon"></i>Copy to
@@ -2865,7 +2795,7 @@
 				<aside id="shipcard" class="shipcard-ismax">
 					<header id="shipcard_header">
 						<span onclick="toggleShipcardSize()" id="shipcard_header_title"></span>
-						<span><i onclick="mapResetViewZoom(13)" id="shipcard_zoom_button"
+						<span><i onclick="mapResetViewZoom(13, card_mmsi)" id="shipcard_zoom_button"
 								class="hide shipcard-header-icon zoom_in_icon"></i></span>
 						<span><i onclick="toggleShipcardSize()" id="shipcard_minmax_button"
 								class="shipcard-header-icon keyboard_arrow_up_icon"></i></span>
@@ -2932,7 +2862,7 @@
 						</div>
 					</div>
 					<footer id="shipcard_footer" class="shipcard-footer shipcard-max-only">
-						<div title="Center map on current vessel" onclick="mapResetViewZoom(13)"><i
+						<div title="Center map on current vessel" onclick="mapResetViewZoom(13,card_mmsi)"><i
 								class="zoom_in_icon"></i><span>Zoom</span></div>
 						<div id="shipcard_track_option" title="Track of current vessel"
 							onclick="toggleTrack(card_mmsi)"><i class="timeline_icon"></i><span
@@ -2944,7 +2874,7 @@
 
 				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box"
 					style=" top: 10px; border-radius: 50%;">
-					<div style="border: 1px solid grey; border-radius: 50%; font-size: 10px;">
+					<div style="border-radius: 50%; font-size: 10px;">
 						<button type="button" onclick="toggleStatcard();" class="btn btn-primary map-button"
 							style="border-radius: 50%">
 							<span id="markerCount">0</span>
@@ -2954,7 +2884,7 @@
 
 				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box"
 					style=" top: 50px; border-radius: 50%;">
-					<div style="border: 1px solid grey; border-radius: 50%; ">
+					<div style=" border-radius: 50%; ">
 						<button type="button" onclick="toggleTablecard();" class="btn btn-primary map-button"
 							style="border-radius: 50%">
 							<svg xmlns="http://www.w3.org/2000/svg" height="12" viewBox="0 -960 960 960" width="12">
@@ -2967,7 +2897,7 @@
 
 				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box"
 					style=" bottom: 120px;">
-					<div style="border: 1px solid grey; border-radius: 5px; ">
+					<div style="border-radius: 5px; ">
 						<button type="button" onclick='showContextMenu(event, "", ["settings", "center", "ctx-map"]);'
 							class="btn btn-primary map-button color-grey">
 							<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
@@ -2988,7 +2918,7 @@
 
 				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box"
 					style=" bottom: 10px;">
-					<div style="border: 1px solid grey; border-radius: 5px; ">
+					<div style="border-radius: 5px; ">
 
 						<button type="button" id="zoom-in" class="btn btn-primary map-button">
 							<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
@@ -3000,7 +2930,7 @@
 								<path d="M200-440v-80h560v80H200Z" />
 							</svg>
 						</button>
-						<button type="button" onclick="toggleTablecard();"
+						<button type="button" onclick='showContextMenu(event, "", ["map-selection"]);'
 							class="btn btn-primary map-button color-grey">
 							<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
 								<path
@@ -3059,7 +2989,7 @@
 			marker_tracks = new Set(),
 			marker_fireworks = [];
 
-		var context_text = "";
+		const hover_info = document.getElementById('hover-info');
 
 		// default settings
 		var settings = {};
@@ -3154,9 +3084,22 @@
 		}
 
 		// some functions useful in plugins
-		function addTileLayer(title, layer) {
-			basemaps[title] = layer;
+		function addTileLayer(title, url, attribution, maxZoom, subdomains = 'abc') {
+
+			basemaps[title] = new ol.layer.Tile({
+				title: title,
+				source: new ol.source.XYZ({
+					attributions: attribution,
+					url: url,
+					maxZoom: maxZoom,
+					tilePixelRatio: (subdomains) ? 2 : 1, // Adjusted for retina display if subdomains are used
+					crossOrigin: 'anonymous',
+					wrapX: false,
+					subdomains: subdomains
+				})
+			});
 		}
+
 		function removeTileLayer(title) {
 			delete basemaps[title];
 		}
@@ -3877,7 +3820,6 @@
 				overlays_day = JSON.parse(JSON.stringify(settings.map_day_overlay));
 				overlays_night = JSON.parse(JSON.stringify(settings.map_night_overlay));
 
-				removeTileLayer();
 
 				settings.map_day_overlay = JSON.parse(JSON.stringify(overlays_day));
 				settings.map_night_overlay = JSON.parse(JSON.stringify(overlays_night));
@@ -3886,10 +3828,13 @@
 			}
 		}
 
+
 		function addMapLayer() {
 			if (settings.dark_mode) {
+				map.removeLayer(activeTileLayer);
 				activeTileLayer = settings.map_night in basemaps ? basemaps[settings.map_night] : basemaps[Object.keys(basemaps)[0]];
-				activeTileLayer.addTo(map);
+				activeTileLayer.setZIndex(-1);
+				map.addLayer(activeTileLayer);
 
 				if (settings.map_night_overlay.length > 0) {
 					for (let i = 0; i < settings.map_night_overlay.length; i++) {
@@ -3899,8 +3844,10 @@
 					}
 				}
 			} else {
+				map.removeLayer(activeTileLayer);
 				activeTileLayer = settings.map_day in basemaps ? basemaps[settings.map_day] : basemaps[Object.keys(basemaps)[0]];
-				activeTileLayer.addTo(map);
+				activeTileLayer.setZIndex(-1);
+				map.addLayer(activeTileLayer);
 
 				if (settings.map_day_overlay.length > 0) {
 					for (let i = 0; i < settings.map_day_overlay.length; i++) {
@@ -3976,16 +3923,11 @@
 		};
 
 		function initMap() {
+
+
 			map = new ol.Map({
+
 				target: 'map',
-				layers: [
-					new ol.layer.Tile({
-						source: new ol.source.XYZ({
-							url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-						})
-					}),
-					shapeLayer, trackLayer, markerLayer, labelLayer, extraLayer
-				],
 				view: new ol.View({
 					center: ol.proj.fromLonLat([3.4, 52]),
 					zoom: 6,
@@ -3993,6 +3935,11 @@
 				}),
 				controls: []
 			})
+
+			addMapLayer();
+			[shapeLayer, trackLayer, markerLayer, labelLayer, extraLayer].forEach(layer => {
+				map.addLayer(layer);
+			});
 
 			map.on('pointermove', function (evt) {
 				if (evt.dragging) {
@@ -4006,6 +3953,11 @@
 			map.on('click', function (evt) {
 				handleClick(evt.pixel, evt.originalEvent.target);
 			});
+
+			map.on('moveend', function (evt) {
+				debouncedSaveSettings();
+			});
+
 
 			map.getTargetElement().addEventListener('pointerleave', function () {
 				stopHover();
@@ -4449,112 +4401,6 @@
 		document.addEventListener("touchmove", moveDrag);
 		document.addEventListener("touchend", endDrag);
 		document.addEventListener("touchcancel", endDrag);
-
-		function updateControlClass() {
-			return;
-			if (document.getElementById("statcard").style.display != "block") {
-				markerCountControl.getContainer().classList.remove("inactive-control");
-				markerCountControl.getContainer().classList.add("active-control");
-			} else {
-				markerCountControl.getContainer().classList.remove("active-control");
-				markerCountControl.getContainer().classList.add("inactive-control");
-			}
-		}
-
-		var markerCountControl;
-
-		function addMarkerCount() {
-			return;
-			if (settings.counter === "false") return;
-
-			markerCountControl = L.control({ position: "topright" });
-
-			markerCountControl.onAdd = function (map) {
-				var controlDiv = L.DomUtil.create("div", "leaflet-control-layers round-control min-height-300");
-
-				L.DomEvent.on(controlDiv, "click", function (e) {
-					toggleStatcard();
-					L.DomEvent.stopPropagation(e);
-				});
-
-				var controlBoundary = L.DomUtil.create("div", "leaflet-control-settings-toggle round-control", controlDiv);
-				iconLabelSpan = L.DomUtil.create("span", "", controlBoundary);
-				iconLabelSpan.innerHTML = '<span id="markerCount">0</span>';
-				iconLabelSpan.style.padding = "5px";
-				iconLabelSpan.style.fontSize = 12 + "px";
-
-				return controlDiv;
-			};
-
-			addControlToMap(markerCountControl);
-			updateMarkerCount();
-		}
-
-		function addFilterControl() {
-			markerFilterControl = L.control({ position: "topright" });
-
-			markerFilterControl.onAdd = function (map) {
-				var controlDiv = L.DomUtil.create("div", "leaflet-control-layers round-control min-height-350 min-width-1400");
-
-				L.DomEvent.on(controlDiv, "click", function (e) {
-					L.DomEvent.stopPropagation(e);
-					toggleTablecard();
-				});
-
-				var controlBoundary = L.DomUtil.create("div", "leaflet-control-settings-toggle round-control", controlDiv);
-				iconLabelSpan = L.DomUtil.create("span", "filter_alt_icon", controlBoundary);
-				iconLabelSpan.innerHTML = "";
-				iconLabelSpan.style.padding = "6px";
-				iconLabelSpan.style.transform = "scale(0.4)";
-
-				return controlDiv;
-			};
-
-			addControlToMap(markerFilterControl);
-		}
-
-		function addTableControl() {
-			markerTableControl = L.control({ position: "topright" });
-
-			markerTableControl.onAdd = function (map) {
-				var controlDiv = L.DomUtil.create("div", "leaflet-control-layers round-control min-height-350");
-
-				L.DomEvent.on(controlDiv, "click", function (e) {
-					L.DomEvent.stopPropagation(e);
-					toggleTablecard();
-				});
-
-				var controlBoundary = L.DomUtil.create("div", "leaflet-control-settings-toggle round-control", controlDiv);
-				iconLabelSpan = L.DomUtil.create("span", "directions_boat_icon", controlBoundary);
-				iconLabelSpan.innerHTML = "";
-				iconLabelSpan.style.padding = "6px";
-				iconLabelSpan.style.transform = "scale(0.4)";
-
-				return controlDiv;
-			};
-
-			addControlToMap(markerTableControl);
-		}
-
-		function addWrenchControl() {
-			var wrenchControl = L.control({ position: "bottomright" });
-
-			wrenchControl.onAdd = function (map) {
-				var controlDiv = L.DomUtil.create("div", "leaflet-control-layers");
-				controlDiv.title = "More options...";
-				var controlBoundary = L.DomUtil.create("div", "leaflet-control-settings-toggle", controlDiv);
-				iconLabelSpan = L.DomUtil.create("span", "more_horiz_icon", controlBoundary);
-				iconLabelSpan.innerHTML = "";
-				iconLabelSpan.style.padding = "6px";
-
-				controlDiv.addEventListener("click", function (event) {
-					showContextMenu(event, "", ["settings", "center", "ctx-map"]);
-				});
-				return controlDiv;
-			};
-
-			addControlToMap(wrenchControl);
-		}
 
 		function removeRange() {
 			if (marker_range != null) {
@@ -5973,6 +5819,15 @@
 							},
 						},
 						{
+							title: "Spd",
+							field: "speed",
+							sorter: "number",
+							formatter: function (cell) {
+								const value = cell.getValue();
+								return value ? getSpeedVal(value) + " " + getSpeedUnit() : null;
+							},
+						},
+						{
 							title: "Valid",
 							field: "validated",
 							sorter: "string",
@@ -6024,14 +5879,7 @@
 		}
 
 		function getTooltipContent(ship) {
-			return getFlag(ship.country) + `<span><b>${getShipName(ship) || ship.mmsi}</b></span><span><br>${getDeltaTimeVal(ship.last_signal)} ago</span>`;
-		}
-
-		function createTooltip(ship) {
-			const cls = settings.tooltipLean ? "leaflet-tooltiplabel" : "leaflet-tooltip";
-			const ofs = settings.tooltipLean ? 0 : 15;
-			markers[ship.mmsi].bindTooltip(getTooltipContent(ship), { className: cls, opacity: 0.85, permanent: true, offset: [ofs, 0], direction: "right" });
-			markers[ship.mmsi].closeTooltip();
+			return '<div>' + getFlag(ship.country, '60px') + `</div><div><div><b>${getShipName(ship) || ship.mmsi}</b></div><div>${getDeltaTimeVal(ship.last_signal)} ago</div></div>`;
 		}
 
 		function getTypeVal(ship) {
@@ -6065,7 +5913,7 @@
 			let style = `opacity: ${opacity};`;
 			let scale = settings.icon_scale;
 
-			style += `background-position: -${ship.cx-0}px -${ship.cy-0}px; width: 20px; height: 20px; transform: rotate(${ship.rot}rad) scale(${scale});`;
+			style += `background-position: -${ship.cx - 0}px -${ship.cy - 0}px; width: 20px; height: 20px; transform: rotate(${ship.rot}rad) scale(${scale});`;
 
 			return { class: "sprites", style: style };
 		}
@@ -6080,79 +5928,13 @@
 			return L.divIcon({ html: `<div class="${classValue}" style="${style}"></div>`, className: "undefined" });
 		}
 
-		// Inspired by: https://gis.stackexchange.com/questions/382087/how-to-remove-leaflet-tooltiplabel-collision
-		function hasOverlap(r1, r2) {
-			return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
-		}
-
-		function addTooltip(rects, m) {
-			if (m == null) return;
-
-			if (!m.getTooltip().isOpen()) m.openTooltip();
-			const r = m.getTooltip()._container.getBoundingClientRect();
-
-			for (var i = 0; i < rects.length; i++) {
-				if (hasOverlap(r, rects[i])) {
-					m.getTooltip().toggle();
-					return;
-				}
-			}
-
-			rects.push(r);
-		}
-
-		function updateTooltips() {
-			if (!settings.labels) return;
-			let rects = [];
-
-			const max_added = 250;
-
-			let added = 0;
-
-			if (hover_mmsi in markers) {
-				if (markers[hover_mmsi].getTooltip()) {
-					addTooltip(rects, markers[hover_mmsi]);
-					added++;
-				}
-				addTooltip(rects, markers[hover_mmsi]);
-			}
-
-			if (hover_mmsi != card_mmsi && card_mmsi in markers) {
-				if (markers[card_mmsi].getTooltip()) {
-					addTooltip(rects, markers[card_mmsi]);
-					added++;
-				}
-				addTooltip(rects, markers[card_mmsi]);
-			}
-
-			for (let [mmsi, m] of Object.entries(markers)) {
-				if (mmsi == card_mmsi || mmsi == hover_mmsi) continue;
-				if (!m.getTooltip()) {
-					added++;
-					createTooltip(shipsDB[mmsi].raw);
-					if (added >= max_added) break;
-				}
-			}
-
-			for (let [mmsi, m] of Object.entries(markers)) {
-				if (mmsi == card_mmsi || mmsi == hover_mmsi) continue;
-				if (!markers[mmsi].getTooltip()) continue;
-
-				if (settings.tooltipOverlap) {
-					if (!m.getTooltip().isOpen()) m.openTooltip();
-				} else {
-					addTooltip(rects, m);
-				}
-			}
-		}
-
 		function notImplemented() {
 			showDialog("Warning", "Not implemented yet");
 		}
 
 
 		const stopHover = function () {
-			info.style.visibility = 'hidden';
+			hover_info.style.visibility = 'hidden';
 
 			if (hoverMMSI in shapeFeatures) {
 				shapeFeatures[hoverMMSI].changed();
@@ -6165,7 +5947,7 @@
 
 		function updateFocusMarker() {
 			if (selectCircleFeature) {
-				if (card_mmsi in shipsDB) {
+				if (card_mmsi in shipsDB && shipsDB[card_mmsi].raw.lon && shipsDB[card_mmsi].raw.lat) {
 					const center = ol.proj.fromLonLat([shipsDB[card_mmsi].raw.lon, shipsDB[card_mmsi].raw.lat]);
 					selectCircleFeature.setGeometry(new ol.geom.Point(center));
 					return;
@@ -6177,7 +5959,7 @@
 				}
 			}
 
-			if (card_mmsi in shipsDB) {
+			if (card_mmsi in shipsDB && shipsDB[card_mmsi].raw.lon && shipsDB[card_mmsi].raw.lat) {
 
 				const center = ol.proj.fromLonLat([shipsDB[card_mmsi].raw.lon, shipsDB[card_mmsi].raw.lat]);
 				selectCircleFeature = new ol.Feature(new ol.geom.Point(center));
@@ -6187,48 +5969,48 @@
 			}
 		}
 
-		const info = document.getElementById('hover-info');
+		const showLabelShip = function (id, mmsi) {
+			id.innerHTML = getTooltipContent(shipsDB[mmsi].raw);
+
+			const center = ol.proj.fromLonLat([shipsDB[mmsi].raw.lon, shipsDB[mmsi].raw.lat]);
+			pixel = map.getPixelFromCoordinate(center);
+			id.style.left = pixel[0] + 'px';
+			id.style.top = pixel[1] + 'px';
+
+			if ((pixel[0] >= 0 || pixel[0] <= map.getSize()[0] || pixel[1] >= 0 || pixel[1] <= map.getSize()[1])) {
+				id.style.visibility = 'visible';
+			}
+		}
 
 		const startHover = function (mmsi, pixel = undefined) {
 
+			/*
 			if (pixel) {
-				info.style.left = pixel[0] + 'px';
-				info.style.top = pixel[1] + 'px';
+				hover_info.style.left = pixel[0] + 'px';
+				hover_info.style.top = pixel[1] + 'px';
 			}
-
+			*/
 			if (mmsi !== hoverMMSI) {
 				if (hoverMMSI || hoverCircleFeature) {
 					stopHover();
 				}
 
-				if (mmsi in shipsDB) {
+				if (mmsi in shipsDB && shipsDB[mmsi].raw.lon && shipsDB[mmsi].raw.lat) {
 					hoverMMSI = mmsi;
-					info.innerHTML = getTooltipContent(shipsDB[mmsi].raw);
-
-					if (!pixel) {
-						const center = ol.proj.fromLonLat([shipsDB[mmsi].raw.lon, shipsDB[mmsi].raw.lat]);
-						pixel = map.getPixelFromCoordinate(center);
-						info.style.left = pixel[0] + 'px';
-						info.style.top = pixel[1] + 'px';
-					}
-
-					if (pixel[0] >= 0 || pixel[0] <= map.getSize()[0] || pixel[1] >= 0 || pixel[1] <= map.getSize()[1]) {
-						info.style.visibility = 'visible';
-					}
+					showLabelShip(hover_info, hoverMMSI);
 				}
-			}
-
-			updateHoverMarker();
-			trackLayer.changed();
-			if (mmsi in shapeFeatures) {
-				shapeFeatures[mmsi].changed();
+				updateHoverMarker();
+				trackLayer.changed();
+				if (mmsi in shapeFeatures) {
+					shapeFeatures[mmsi].changed();
+				}
 			}
 		}
 
 		function updateHoverMarker() {
 
 			if (hoverCircleFeature) {
-				if (hoverMMSI in shipsDB) {
+				if (hoverMMSI in shipsDB && shipsDB[hoverMMSI].raw.lon && shipsDB[hoverMMSI].raw.lat) {
 					const center = ol.proj.fromLonLat([shipsDB[hoverMMSI].raw.lon, shipsDB[hoverMMSI].raw.lat]);
 					hoverCircleFeature.setGeometry(new ol.geom.Point(center));
 					return;
@@ -6241,7 +6023,7 @@
 				}
 			}
 
-			if (hoverMMSI in shipsDB) {
+			if (hoverMMSI in shipsDB && shipsDB[hoverMMSI].raw.lon && shipsDB[hoverMMSI].raw.lat) {
 
 				const center = ol.proj.fromLonLat([shipsDB[hoverMMSI].raw.lon, shipsDB[hoverMMSI].raw.lat]);
 				hoverCircleFeature = new ol.Feature(new ol.geom.Point(center));
@@ -6282,9 +6064,11 @@
 			if (isAndroid()) return;
 
 			let view = map.getView();
-			let newURL = window.location.href.split("?")[0] + "?lat=" + view.getCenter()[1].toFixed(4) + "&lon=" + view.getCenter()[0].toFixed(4) + "&zoom=" + view.getZoom().toFixed(2) + "&tab=" + settings.tab;
+			let center = ol.proj.toLonLat(view.getCenter()); // Converts the center coordinates to [lon, lat]
+			let newURL = window.location.href.split("?")[0] + "?lat=" + center[1].toFixed(4) + "&lon=" + center[0].toFixed(4) + "&zoom=" + view.getZoom().toFixed(2) + "&tab=" + settings.tab;
 			history.replaceState(null, null, newURL);
 		}
+
 
 		function saveSettings() {
 			if (map !== undefined) {
@@ -6354,24 +6138,20 @@
 			settings.dim_in_feet = settings.dim_in_feet == "true" || settings.dim_in_feet == true;
 		}
 
-		function mapResetViewZoom(z, m = card_mmsi) {
-			if (m && m in shipsDB && shipsDB[m].raw.lat != null && shipsDB[m].raw.lon != null) {
+		function mapResetViewZoom(z, m) {
+			if (m && m in shipsDB) {
 				let ship = shipsDB[m].raw;
-				let newZoom = Math.min(Math.max(z, map.getView().getZoom() + 1), map.getView().getMaxZoom());
-				map.getView().animate({
-					center: ol.proj.fromLonLat([ship.lon, ship.lat]),
-					zoom: newZoom
-				});
+				let view = map.getView();
+				view.setCenter(ol.proj.fromLonLat([ship.lon, ship.lat]));
+				view.setZoom(Math.min(view.getMaxZoom(), Math.max(z, view.getZoom() + 1)));
 			}
 
 			shipcardMinIfMaxonMobile();
 		}
 
-		function mapResetView(z, m) {
-			if (m && m in shipsDB) {
-				let ship = shipsDB[m].raw;
-				map.setView([ship.lat, ship.lon], Math.min(z, map.getMaxZoom()));
-			} else if (marker_focus != null) map.setView(marker_focus.getLatLng(), Math.min(z, map.getMaxZoom()));
+		function mapResetView(z) {
+
+			view.setZoom(Math.min(view.getMaxZoom(), Math.max(z, view.getZoom() + 1)));
 
 			shipcardMinIfMaxonMobile();
 		}
@@ -6706,42 +6486,26 @@
 
 			if (shipcardVisible()) {
 				populateShipcard();
-				if (m in markers && marker_focus != null && !map.getBounds().contains(marker_focus.getLatLng())) {
-					map.setView(marker_focus.getLatLng());
-				}
 
+				if (ship.lon && ship.lat) {
+					let shipCoords = ol.proj.fromLonLat([ship.lon, ship.lat]);
+
+					let view = map.getView();
+					let extent = view.calculateExtent(map.getSize());
+
+					if (!ol.extent.containsCoordinate(extent, shipCoords)) {
+						view.setCenter(shipCoords);
+						//view.setZoom(view.getMaxZoom());
+					}
+				}
 				if (!visible) shipcardMinIfMaxonMobile();
 			}
-		}
-
-		function setTooltipStyling(b) {
-			settings.tooltipLean = b;
-			saveSettings();
-			for (let [key, m] of Object.entries(markers)) {
-				const cls = settings.tooltipLean ? "leaflet-tooltiplabel" : "leaflet-tooltip";
-				markers[key].unbindTooltip();
-				createTooltip(shipsDB[key].raw);
-			}
-		}
-
-		function toggleTooltipStyling() {
-			if (!settings.labels) settings.labels = true;
-			setTooltipStyling(!settings.tooltipLean);
 		}
 
 		function setLabelColor(v, c) {
 			settings[v] = c;
 			saveSettings();
 			applyDynamicStyling();
-		}
-
-		function setTooltipOverlay(b) {
-			if (settings.tooltipOverlap != b) toggleTooltipOverlap();
-		}
-
-		function toggleTooltipOverlap() {
-			settings.tooltipOverlap = !settings.tooltipOverlap;
-			updateTooltips();
 		}
 
 		function compareObjects(obj1, obj2) {
@@ -7228,7 +6992,7 @@
                     The web-interface gratefully uses the following libraries:
                     <a href="https://www.chartjs.org/docs/latest/charts/line.html" rel="nofollow">chart.js</a>,
                     <a href="https://www.chartjs.org/chartjs-plugin-annotation/latest/" rel="nofollow">chart.js annotation plugin</a>,
-                    <a href="https://leafletjs.com/" rel="nofollow">leaflet</a>,
+                    <a href="https://openlayers.org/" rel="nofollow">openlayers</a>,
                     <a href="https://fonts.google.com/icons?selected=Material+Icons" rel="nofollow">Material Design Icons</a>,
                     <a href="https://tabulator.info/" rel="nofollow">tabulator</a>,
                     <a href="https://github.com/markedjs/marked">marked</a>, and
@@ -7278,59 +7042,21 @@
 		function init_postTabsInit() { }
 
 		// add the default tile layers and overlay
-		addTileLayer("OpenStreetMap", L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>' }));
-		addTileLayer(
-			"Positron",
-			L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-				subdomains: "abcd",
-				maxZoom: 20,
-			}),
-		);
-		addTileLayer(
-			"Positron (no labels)",
-			L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-				subdomains: "abcd",
-				maxZoom: 20,
-			}),
-		);
+		addTileLayer("OpenStreetMap", "https://tile.openstreetmap.org/{z}/{x}/{y}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>', 19);
 
-		addTileLayer(
-			"Dark Matter",
-			L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-				subdomains: "abcd",
-				maxZoom: 20,
-			}),
-		);
+		addTileLayer("Positron", "https://{a-d}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
 
-		addTileLayer(
-			"Dark Matter (no labels)",
-			L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-				subdomains: "abcd",
-				maxZoom: 20,
-			}),
-		);
+		addTileLayer("Positron (no labels)", "https://{a-d}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
 
-		addTileLayer(
-			"Voyager",
-			L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSMN</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-				subdomains: "abcd",
-				maxZoom: 20,
-			}),
-		);
-		addTileLayer(
-			"Voyager (no labels)",
-			L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
-				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-				subdomains: "abcd",
-				maxZoom: 20,
-			}),
-		);
-		addTileLayer("Satellite", L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { attribution: "Esri et al." }));
+		addTileLayer("Dark Matter", "https://{a-d}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+
+		addTileLayer("Dark Matter (no labels)", "https://{a-d}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+
+		addTileLayer("Voyager", "https://{a-d}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OSMN</a> &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+
+		addTileLayer("Voyager (no labels)", "https://{a-d}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+
+		addTileLayer("Satellite", "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", "Esri et al.", undefined, "");
 
 		addOverlayLayer("OpenSeaMap", L.tileLayer("http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png", { attribution: 'Map data: &copy; <a href="http://www.openseamap.org">OSM</a>', maxZoom: 18 }));
 		addOverlayLayer(
