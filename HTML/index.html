@@ -224,6 +224,10 @@
 			padding: 10px 15px;
 		}
 
+		.rounded {
+			border-radius: 50% !important;
+		}
+
 		.small-icon {
 			font-size: 18px;
 		}
@@ -593,6 +597,8 @@
 			border-radius: inherit !important;
 		}
 
+		#tableselection {}
+
 		#hover-info {
 			position: absolute;
 			display: flex;
@@ -601,6 +607,7 @@
 			height: auto;
 			width: auto;
 			z-index: 100;
+			font-size: 12px;
 			background-color: var(--menu-background-color) !important;
 			color: var(--menu-font-color) !important;
 			text-align: center;
@@ -617,7 +624,7 @@
 		}
 
 		#hover-info div span {
-			font-size: 34px;
+			font-size: 26px;
 		}
 
 		.fill-red {
@@ -2097,7 +2104,7 @@
 			display: flex;
 			align-items: center;
 			padding-left: 15px;
-			border-radius: 5px;
+			border-radius: 0px;
 			font-size: 16px;
 		}
 
@@ -2169,7 +2176,7 @@
 		<div class="tableside_window settings-bg tabcontent" id="tableside">
 			<div class="settings_header">
 				<div class="directions_boat_icon"></div>
-				<div>Ships</div>
+				<div></div>
 				<div onclick="hideTablecard()" class="close_icon"></div>
 			</div>
 			<div class="settings-bg tablecard_inner addscrollbar">
@@ -2192,7 +2199,7 @@
 		<div class="settings_window settings-bg" id="settings">
 			<div class="settings_header">
 				<div class="settings_icon"></div>
-				<div>Settings</div>
+				<div></div>
 				<div onclick="closeSettings()" class="close_icon"></div>
 			</div>
 			<div class="settings_main stat-panel settings-bg">
@@ -2211,12 +2218,6 @@
 						<span>Lat/Lon in DMS</span><span>
 							<input type="checkbox" id="settings_latlon_in_dms"
 								onchange="setLatLonInDMS(this.checked)" />
-						</span>
-					</div>
-					<div>
-						<span>Dimension in Ft</span><span>
-							<input type="checkbox" id="settings_dim_in_feet"
-								onchange="setDimensionInFeet(this.checked)" />
 						</span>
 					</div>
 					<div>
@@ -2265,19 +2266,19 @@
 					<div>
 						<span>Hover Color</span><span>
 							<input type="color" class="color-picker" id="settings_shiphover_color"
-								onchange="setShipStyling('shiphover_color',this.value)" />
+								onchange="setMapSetting('shiphover_color',this.value)" />
 						</span>
 					</div>
 					<div>
 						<span>Selection Color</span><span>
 							<input type="color" class="color-picker" id="settings_shipselection_color"
-								onchange="setShipStyling('shipselection_color',this.value)" />
+								onchange="setMapSetting('shipselection_color',this.value)" />
 						</span>
 					</div>
 					<div>
 						<span>Track Color</span><span>
 							<input type="color" class="color-picker" id="settings_track_color"
-								onchange="setTrackColor(this.value)" />
+								onchange="setMapSetting(this.value)" />
 						</span>
 					</div>
 					<div>
@@ -2291,20 +2292,18 @@
 				<header>Ship Labels</header>
 				<section>
 					<div>
-						<span>Show all</span><span>
-							<input type="checkbox" id="settings_labels" onchange="setLabel(this.checked)" />
-						</span>
-					</div>
-					<div>
-						<span>Text-only</span><span>
-							<input type="checkbox" id="settings_tooltipLean"
-								onchange="setTooltipStyling(this.checked)" />
+						<span>Show</span><span>
+							<select id="settings_show_labels" onchange="setMapSetting('show_labels',this.value)">
+								<option value="dynamic">Dynamic</option>
+								<option value="never">Never</option>
+								<option value="always">Always</option>
+							</select>
 						</span>
 					</div>
 					<div>
 						<span>Declutter</span><span>
-							<input type="checkbox" id="settings_tooltipOverlap"
-								onchange="setTooltipOverlay(!(this.checked))" />
+							<input type="checkbox" id="settings_labels_declutter"
+								onchange="setMapSetting('labels_declutter',this.checked); labelLayer.declutter = this.checked; labelLayer.changed(); " />
 						</span>
 					</div>
 				</section>
@@ -2312,13 +2311,13 @@
 					<div>
 						<span>Color</span><span>
 							<input type="color" class="color-picker" id="settings_tooltipLabelColor"
-								onchange="setLabelColor('tooltipLabelColor',this.value)" />
+								onchange="setMapSetting('tooltipLabelColor',this.value)" />
 						</span>
 					</div>
 					<div>
 						<span>Shadow Color</span><span>
 							<input type="color" class="color-picker" id="settings_tooltipLabelShadowColor"
-								onchange="setLabelColor('tooltipLabelShadowColor',this.value)" />
+								onchange="setMapSetting('tooltipLabelShadowColor',this.value)" />
 						</span>
 					</div>
 				</section>
@@ -2326,13 +2325,13 @@
 					<div>
 						<span>Color (Dark)</span><span>
 							<input type="color" class="color-picker" id="settings_tooltipLabelColorDark"
-								onchange="setLabelColor('tooltipLabelColorDark',this.value)" />
+								onchange="setMapSetting('tooltipLabelColorDark',this.value)" />
 						</span>
 					</div>
 					<div>
 						<span>Shadow Color (Dark)</span><span>
 							<input type="color" class="color-picker" id="settings_tooltipLabelShadowColorDark"
-								onchange="setLabelColor('tooltipLabelShadowColorDark',this.value)" />
+								onchange="setMapSetting('tooltipLabelShadowColorDark',this.value)" />
 						</span>
 					</div>
 				</section>
@@ -2341,20 +2340,20 @@
 					<div>
 						<span>Border Color</span><span>
 							<input type="color" class="color-picker" id="settings_shipoutline_border"
-								onchange="setShipStyling('shipoutline_border',this.value)" />
+								onchange="setMapSetting('shipoutline_border',this.value)" />
 						</span>
 					</div>
 					<div>
 						<span>Inner Color</span><span>
 							<input type="color" class="color-picker" id="settings_shipoutline_inner"
-								onchange="setShipStyling('shipoutline_inner',this.value)" />
+								onchange="setMapSetting('shipoutline_inner',this.value)" />
 						</span>
 					</div>
 					<div>
 						<span>Opacity</span>
 						<span>
 							<input type="range" id="settings_shipoutline_opacity" min="0" max="1" step="0.01"
-								onchange="setShipStyling('shipoutline_opacity',this.value)" />
+								onchange="setMapSetting('shipoutline_opacity',this.value)" />
 						</span>
 					</div>
 				</section>
@@ -2396,9 +2395,6 @@
 		</div>
 
 		<div oncontextmenu="showContextMenu(event,0,['settings'])" class="mainspace">
-			<ul class="floating-menu" id="mapselection-menu">
-			</ul>
-			
 			<ul class="floating-menu" id="context-menu">
 				<li class="station" onclick="pinStation()"><i class="push_pin_icon"></i>Center map on station</li>
 				<li class="divider station"></li>
@@ -2792,6 +2788,24 @@
 						</table>
 					</div>
 				</div>
+
+				<div class="floating-menu" id="map-menu" style="width: 300px;">
+					<table>
+						<tr>
+							<td>Map:</td>
+							<td>
+								<select id="baseMapSelector">
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>Overlays:</td>
+							<td id="overlayContainer">
+							</td>
+						</tr>
+					</table>
+				</div>
+
 				<aside id="shipcard" class="shipcard-ismax">
 					<header id="shipcard_header">
 						<span onclick="toggleShipcardSize()" id="shipcard_header_title"></span>
@@ -2872,72 +2886,61 @@
 
 				<div id="hover-info"></div>
 
-				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box"
-					style=" top: 10px; border-radius: 50%;">
-					<div style="border-radius: 50%; font-size: 10px;">
-						<button type="button" onclick="toggleStatcard();" class="btn btn-primary map-button"
-							style="border-radius: 50%">
-							<span id="markerCount">0</span>
-						</button>
-					</div>
+				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box rounded"
+					style="top: 10px;">
+					<button type="button" onclick="toggleStatcard();" class="btn btn-primary map-button"
+						style="font-size: 10px;">
+						<span id="markerCount">0</span>
+					</button>
+				</div>
+
+				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box rounded"
+					style="top: 50px;">
+					<button type="button" onclick="toggleTablecard();" class="btn btn-primary map-button"
+						style="border-radius: 50%">
+						<svg xmlns="http://www.w3.org/2000/svg" height="12" viewBox="0 -960 960 960" width="12">
+							<path
+								d="M158-200 82-468q-3-12 2.5-28t23.5-22l52-18v-184q0-33 23.5-56.5T240-800h120v-120h240v120h120q33 0 56.5 23.5T800-720v184l52 18q21 8 25 23.5t1 26.5l-76 268q-50 0-91-23.5T640-280q-30 33-71 56.5T480-200q-48 0-89-23.5T320-280q-30 33-71 56.5T158-200ZM80-40v-80h80q42 0 83-13t77-39q36 26 77 38t83 12q42 0 83-12t77-38q36 26 77 39t83 13h80v80h-80q-42 0-82-10t-78-30q-38 20-78.5 30T480-40q-41 0-81.5-10T320-80q-38 20-78 30t-82 10H80Zm160-522 240-78 240 78v-158H240v158Z" />
+						</svg>
+					</button>
 				</div>
 
 				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box"
-					style=" top: 50px; border-radius: 50%;">
-					<div style=" border-radius: 50%; ">
-						<button type="button" onclick="toggleTablecard();" class="btn btn-primary map-button"
-							style="border-radius: 50%">
-							<svg xmlns="http://www.w3.org/2000/svg" height="12" viewBox="0 -960 960 960" width="12">
-								<path
-									d="M158-200 82-468q-3-12 2.5-28t23.5-22l52-18v-184q0-33 23.5-56.5T240-800h120v-120h240v120h120q33 0 56.5 23.5T800-720v184l52 18q21 8 25 23.5t1 26.5l-76 268q-50 0-91-23.5T640-280q-30 33-71 56.5T480-200q-48 0-89-23.5T320-280q-30 33-71 56.5T158-200ZM80-40v-80h80q42 0 83-13t77-39q36 26 77 38t83 12q42 0 83-12t77-38q36 26 77 39t83 13h80v80h-80q-42 0-82-10t-78-30q-38 20-78.5 30T480-40q-41 0-81.5-10T320-80q-38 20-78 30t-82 10H80Zm160-522 240-78 240 78v-158H240v158Z" />
-							</svg>
-						</button>
-					</div>
+					style=" bottom: 120px; border-radius: 5px;">
+					<button type="button" onclick='showContextMenu(event, "", ["settings", "center", "ctx-map"]);'
+						class="btn btn-primary map-button color-grey">
+						<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+							<path
+								d="M240-400q-33 0-56.5-23.5T160-480q0-33 23.5-56.5T240-560q33 0 56.5 23.5T320-480q0 33-23.5 56.5T240-400Zm240 0q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm240 0q-33 0-56.5-23.5T640-480q0-33 23.5-56.5T720-560q33 0 56.5 23.5T800-480q0 33-23.5 56.5T720-400Z" />
+						</svg>
+					</button>
+					<button type="button" id="xchange" class="btn btn-primary map-button fill-red">
+
+						<svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20">
+							<path
+								d="M475-160q4 0 8-2t6-4l328-328q12-12 17.5-27t5.5-30q0-16-5.5-30.5T817-607L647-777q-11-12-25.5-17.5T591-800q-15 0-30 5.5T534-777l-11 11 74 75q15 14 22 32t7 38q0 42-28.5 70.5T527-522q-20 0-38.5-7T456-550l-75-74-175 175q-3 3-4.5 6.5T200-435q0 8 6 14.5t14 6.5q4 0 8-2t6-4l136-136 56 56-135 136q-3 3-4.5 6.5T285-350q0 8 6 14t14 6q4 0 8-2t6-4l136-135 56 56-135 136q-3 2-4.5 6t-1.5 8q0 8 6 14t14 6q4 0 7.5-1.5t6.5-4.5l136-135 56 56-136 136q-3 3-4.5 6.5T454-180q0 8 6.5 14t14.5 6Zm-1 80q-37 0-65.5-24.5T375-166q-34-5-57-28t-28-57q-34-5-56.5-28.5T206-336q-38-5-62-33t-24-66q0-20 7.5-38.5T149-506l232-231 131 131q2 3 6 4.5t8 1.5q9 0 15-5.5t6-14.5q0-4-1.5-8t-4.5-6L398-777q-11-12-25.5-17.5T342-800q-15 0-30 5.5T285-777L144-635q-9 9-15 21t-8 24q-2 12 0 24.5t8 23.5l-58 58q-17-23-25-50.5T40-590q2-28 14-54.5T87-692l141-141q24-23 53.5-35t60.5-12q31 0 60.5 12t52.5 35l11 11 11-11q24-23 53.5-35t60.5-12q31 0 60.5 12t52.5 35l169 169q23 23 35 53t12 61q0 31-12 60.5T873-437L545-110q-14 14-32.5 22T474-80Zm-99-560Z" />
+						</svg>
+					</button>
 				</div>
 
 				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box"
-					style=" bottom: 120px;">
-					<div style="border-radius: 5px; ">
-						<button type="button" onclick='showContextMenu(event, "", ["settings", "center", "ctx-map"]);'
-							class="btn btn-primary map-button color-grey">
-							<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
-								<path
-									d="M240-400q-33 0-56.5-23.5T160-480q0-33 23.5-56.5T240-560q33 0 56.5 23.5T320-480q0 33-23.5 56.5T240-400Zm240 0q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm240 0q-33 0-56.5-23.5T640-480q0-33 23.5-56.5T720-560q33 0 56.5 23.5T800-480q0 33-23.5 56.5T720-400Z" />
-							</svg>
-						</button>
-						<button type="button" id="xchange" class="btn btn-primary map-button fill-red">
-
-							<svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20">
-								<path
-									d="M475-160q4 0 8-2t6-4l328-328q12-12 17.5-27t5.5-30q0-16-5.5-30.5T817-607L647-777q-11-12-25.5-17.5T591-800q-15 0-30 5.5T534-777l-11 11 74 75q15 14 22 32t7 38q0 42-28.5 70.5T527-522q-20 0-38.5-7T456-550l-75-74-175 175q-3 3-4.5 6.5T200-435q0 8 6 14.5t14 6.5q4 0 8-2t6-4l136-136 56 56-135 136q-3 3-4.5 6.5T285-350q0 8 6 14t14 6q4 0 8-2t6-4l136-135 56 56-135 136q-3 2-4.5 6t-1.5 8q0 8 6 14t14 6q4 0 7.5-1.5t6.5-4.5l136-135 56 56-136 136q-3 3-4.5 6.5T454-180q0 8 6.5 14t14.5 6Zm-1 80q-37 0-65.5-24.5T375-166q-34-5-57-28t-28-57q-34-5-56.5-28.5T206-336q-38-5-62-33t-24-66q0-20 7.5-38.5T149-506l232-231 131 131q2 3 6 4.5t8 1.5q9 0 15-5.5t6-14.5q0-4-1.5-8t-4.5-6L398-777q-11-12-25.5-17.5T342-800q-15 0-30 5.5T285-777L144-635q-9 9-15 21t-8 24q-2 12 0 24.5t8 23.5l-58 58q-17-23-25-50.5T40-590q2-28 14-54.5T87-692l141-141q24-23 53.5-35t60.5-12q31 0 60.5 12t52.5 35l11 11 11-11q24-23 53.5-35t60.5-12q31 0 60.5 12t52.5 35l169 169q23 23 35 53t12 61q0 31-12 60.5T873-437L545-110q-14 14-32.5 22T474-80Zm-99-560Z" />
-							</svg>
-						</button>
-
-					</div>
-				</div>
-
-				<div class="ol-control ol-unselectable ol-control-custom button-control-box map-button-box"
-					style=" bottom: 10px;">
-					<div style="border-radius: 5px; ">
-
-						<button type="button" id="zoom-in" class="btn btn-primary map-button">
-							<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
-								<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
-							</svg>
-						</button>
-						<button type="button" id="zoom-out" class="btn btn-primary map-button">
-							<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
-								<path d="M200-440v-80h560v80H200Z" />
-							</svg>
-						</button>
-						<button type="button" onclick='showContextMenu(event, "", ["map-selection"]);'
-							class="btn btn-primary map-button color-grey">
-							<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
-								<path
-									d="M480-118 120-398l66-50 294 228 294-228 66 50-360 280Zm0-202L120-600l360-280 360 280-360 280Zm0-280Zm0 178 230-178-230-178-230 178 230 178Z" />
-							</svg>
-						</button>
-					</div>
+					style=" bottom: 10px; border-radius: 5px;">
+					<button type="button" id="zoom-in" class="btn btn-primary map-button">
+						<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+							<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+						</svg>
+					</button>
+					<button type="button" id="zoom-out" class="btn btn-primary map-button">
+						<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+							<path d="M200-440v-80h560v80H200Z" />
+						</svg>
+					</button>
+					<button type="button" onclick='showMapMenu(event)' class="btn btn-primary map-button color-grey">
+						<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+							<path
+								d="M480-118 120-398l66-50 294 228 294-228 66 50-360 280Zm0-202L120-600l360-280 360 280-360 280Zm0-280Zm0 178 230-178-230-178-230 178 230 178Z" />
+						</svg>
+					</button>
 				</div>
 			</div>
 		</div>
@@ -3021,8 +3024,6 @@
 				range_color_dark_short: "#303030",
 				fix_center: false,
 				center_point: "station",
-				tooltipLean: true,
-				tooltipOverlap: true,
 				tooltipLabelColor: "#000000",
 				tooltipLabelColorDark: "#ffffff",
 				tooltipLabelShadowColor: "#ffffff",
@@ -3036,10 +3037,10 @@
 				center_radius: 0,
 				show_station: true,
 				metric: "DEFAULT",
-				dim_in_feet: false,
 				setcoord: true,
 				tab: "stat",
-				labels: false,
+				show_labels: "dynamic",
+				labels_declutter: true,
 				eri: true,
 				loadURL: true,
 				map_opacity: 0.95,
@@ -3061,7 +3062,6 @@
 			setLatLonInDMS(settings.latlon_in_dms);
 			setDarkMode(settings.dark_mode);
 			setMetrics(settings.metric);
-			setDimensionInFeet(settings.dim_in_feet);
 			updateMapLayer();
 			//updateTooltips();
 			setLabel(settings.label);
@@ -3069,10 +3069,10 @@
 			setTooltipStyling(settings.tooltipLean);
 			setFading(settings.fading);
 
-			setLabelColor("tooltipLabelColor", settings.tooltipLabelColor);
-			setLabelColor("tooltipLabelShadowColor", settings.tooltipLabelShadowColor);
-			setLabelColor("tooltipLabelColorDark", settings.tooltipLabelColorDark);
-			setLabelColor("tooltipLabelShadowColorDark", settings.tooltipLabelShadowColorDark);
+			setMapSetting("tooltipLabelColor", settings.tooltipLabelColor);
+			setMapSetting("tooltipLabelShadowColor", settings.tooltipLabelShadowColor);
+			setMapSetting("tooltipLabelColorDark", settings.tooltipLabelColorDark);
+			setMapSetting("tooltipLabelShadowColorDark", settings.tooltipLabelShadowColorDark);
 
 			updateFocusMarker();
 			clearHoverMarker();
@@ -3095,6 +3095,7 @@
 					tilePixelRatio: (subdomains) ? 2 : 1, // Adjusted for retina display if subdomains are used
 					crossOrigin: 'anonymous',
 					wrapX: false,
+					visible: false,
 					subdomains: subdomains
 				})
 			});
@@ -3129,16 +3130,10 @@
 
 		// transformations - for overwrite
 		getDimVal = (c) => {
-			if (settings.dim_in_feet) {
-				return Number(c * 3.2808399).toFixed(0);
-			}
 			return settings.metric === "DEFAULT" || settings.metric === "SI" ? Number(c).toFixed(0) : Number(c * 3.2808399).toFixed(0);
 		};
 
 		getDimUnit = () => {
-			if (settings.dim_in_feet) {
-				return "ft";
-			}
 			return settings.metric === "DEFAULT" || settings.metric === "SI" ? "m" : "ft";
 		};
 
@@ -3197,6 +3192,7 @@
 		}
 
 		function openSettings() {
+			closeWindowsForNew();
 			document.querySelector(".settings_window").classList.add("active");
 		}
 
@@ -3216,12 +3212,6 @@
 			if (table != null) table = null;
 		}
 
-		function setDimensionInFeet(b) {
-			settings.dim_in_feet = b;
-			saveSettings();
-			refresh_data();
-		}
-
 		function copyCoordinates(m) {
 			let coords = "not found";
 
@@ -3238,7 +3228,7 @@
 					color: 'rgba(0, 0, 0, 0.1)'
 				}),
 				stroke: new ol.style.Stroke({
-					color: hoverMMSI && feature.mmsi == hoverMMSI ? 'orange' : 'grey',
+					color: hoverMMSI && feature.mmsi == hoverMMSI ? settings.shiphover_color : settings.shipoutline_border,
 					width: 2
 				}),
 			});;
@@ -3269,10 +3259,11 @@
 			return new ol.style.Style({
 				image: new ol.style.Icon({
 					src: SpritesAll,
-					rotation: feature.rot,
-					offset: [feature.cx, feature.cy],
-					size: [feature.imgSize, feature.imgSize],
-					scale: settings.icon_scale
+					rotation: feature.ship.rot,
+					offset: [feature.ship.cx, feature.ship.cy],
+					size: [feature.ship.imgSize, feature.ship.imgSize],
+					scale: settings.icon_scale,
+					opacity: 1
 				})
 			})
 		}
@@ -3280,15 +3271,15 @@
 		var labelStyle = function (feature) {
 			return new ol.style.Style({
 				text: new ol.style.Text({
-					text: feature.shipname || feature.mmsi.toString(),
+					text: feature.ship.shipname || feature.ship.mmsi.toString(),
 					overflow: true,
 					offsetY: 25,
 					offsetX: 25,
 					fill: new ol.style.Fill({
-						color: '#000'
+						color: settings.dark_mode ? settings.tooltipLabelColorDark : settings.tooltipLabelColor
 					}),
 					stroke: new ol.style.Stroke({
-						color: '#fff',
+						color: settings.dark_mode ? settings.tooltipLabelShadowColorDark : settings.tooltipLabelShadowColor,
 						width: 5
 					}),
 					font: '12px Arial'
@@ -3362,7 +3353,7 @@
 		var labelLayer = new ol.layer.Vector({
 			source: labelVector,
 			style: labelStyle,
-			declutter: true
+			declutter: settings.labels_declutter || true
 		});
 
 		let shapeFeatures = {};
@@ -3426,8 +3417,6 @@
 						value = JSON.stringify(value).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "\\'").replace(/"/g, '\\"');
 					}
 					tableHtml += "<tr><td>" + key + "</td><td oncontextmenu='showContextMenu(event,\"" + value + ' ",["settings","copy-text"])\'>' + value + "</td></tr>";
-
-					//tableHtml += '<tr><td>' + key + '</td><td oncontextmenu=\'showContextMenu(event,"' + value + '",["copy-text"])\'>' + value + '</td></tr>';
 				}
 				tableHtml += "</table>";
 
@@ -3474,13 +3463,50 @@
 			window.open("https://www.aishub.net/vessels?Ship[mmsi]=" + m);
 		}
 
+		const mapMenu = document.getElementById("map-menu");
+
+		function hideMapMenu(event) {
+
+			if (!mapMenu.contains(event.target)) {
+				mapMenu.style.display = "none";
+				document.removeEventListener("click", hideMapMenu);
+			}
+		}
+
+		function showMapMenu(event) {
+
+			hideContextMenu();
+			if (event && event.preventDefault) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+
+			mapMenu.style.display = "block";
+
+			mapMenu.style.left = "50%";
+			mapMenu.style.top = "50%";
+			mapMenu.style.transform = "translate(-50%, -50%)";
+
+			document.addEventListener("click", function (event) {
+				hideMapMenu(event);
+			});
+		}
+
+		const contextMenu = document.getElementById("context-menu");
+
+		function hideContextMenu(event) {
+			contextMenu.style.display = "none";
+			document.removeEventListener("click", hideContextMenu);
+		}
+
 		function showContextMenu(event, mmsi, context) {
-			var contextMenu = document.getElementById("context-menu");
 
 			if (event && event.preventDefault) {
 				event.preventDefault();
 				event.stopPropagation();
 			}
+
+			hideMapMenu(event);
 
 			document.getElementById("ctx_labelswitch").textContent = settings.labels ? "Hide ship labels" : "Show ship labels";
 			document.getElementById("ctx_range").textContent = settings.show_range ? "Hide station range" : "Show station range";
@@ -3505,12 +3531,6 @@
 				document.querySelectorAll(".ctx-noalltracks").forEach(function (element) {
 					element.style.display = "none";
 				});
-			} else {
-				/*
-	document.querySelectorAll('.ctx-noalltracks').forEach(function(element) {
-		element.style.display = 'flex';
-	});
-	*/
 			}
 
 			if (show_all_tracks || marker_tracks.size > 0) {
@@ -3551,9 +3571,8 @@
 				contextMenu.style.top = adjustedY + "px";
 			}
 
-			document.addEventListener("click", function hideContextMenu(event) {
-				contextMenu.style.display = "none";
-				document.removeEventListener("click", hideContextMenu);
+			document.addEventListener("click", function (event) {
+				hideContextMenu();
 			});
 		}
 
@@ -3803,6 +3822,7 @@
 		const SAR = 4;
 		const SARTEPIRB = 5;
 		const ATON = 6;
+
 		function headerClick() {
 			window.open("https://aiscatcher.org");
 		}
@@ -3816,7 +3836,9 @@
 		}
 
 		function updateMapLayer() {
+
 			if (activeTileLayer) {
+
 				overlays_day = JSON.parse(JSON.stringify(settings.map_day_overlay));
 				overlays_night = JSON.parse(JSON.stringify(settings.map_night_overlay));
 
@@ -3824,17 +3846,28 @@
 				settings.map_day_overlay = JSON.parse(JSON.stringify(overlays_day));
 				settings.map_night_overlay = JSON.parse(JSON.stringify(overlays_night));
 
-				addMapLayer();
+				triggerMapLayer();
 			}
 		}
 
+		function setMap(key) {
+			if (settings.dark_mode)
+				settings.map_night = key;
+			else
+				settings.map_day = key;
 
-		function addMapLayer() {
+			triggerMapLayer();
+			saveSettings();
+		}
+
+		function triggerMapLayer() {
+
 			if (settings.dark_mode) {
-				map.removeLayer(activeTileLayer);
+				if (activeTileLayer)
+					activeTileLayer.setVisible(false);
+
 				activeTileLayer = settings.map_night in basemaps ? basemaps[settings.map_night] : basemaps[Object.keys(basemaps)[0]];
-				activeTileLayer.setZIndex(-1);
-				map.addLayer(activeTileLayer);
+				activeTileLayer.setVisible(true);
 
 				if (settings.map_night_overlay.length > 0) {
 					for (let i = 0; i < settings.map_night_overlay.length; i++) {
@@ -3844,10 +3877,12 @@
 					}
 				}
 			} else {
-				map.removeLayer(activeTileLayer);
+				if (activeTileLayer)
+					activeTileLayer.setVisible(false);
+
 				activeTileLayer = settings.map_day in basemaps ? basemaps[settings.map_day] : basemaps[Object.keys(basemaps)[0]];
-				activeTileLayer.setZIndex(-1);
-				map.addLayer(activeTileLayer);
+				activeTileLayer.setVisible(true);
+				return;
 
 				if (settings.map_day_overlay.length > 0) {
 					for (let i = 0; i < settings.map_day_overlay.length; i++) {
@@ -3863,8 +3898,7 @@
 		document.head.appendChild(dynamicStyle);
 
 		function applyDynamicStyling() {
-			let style = `:root { --tooltip-font-color: ${settings.tooltipLabelColor}; --label-shadow-color: ${settings.tooltipLabelShadowColor}} \n`;
-			style += `.dark { --tooltip-font-color: ${settings.tooltipLabelColorDark}; --label-shadow-color: ${settings.tooltipLabelShadowColorDark}}\n`;
+			let style = ``
 
 			if (!isAndroid())
 				style += `
@@ -3897,6 +3931,13 @@
 
 		var clickTimeout = undefined;
 
+		const closeWindowsForNew = function () {
+			showShipcard(null);
+			hideMenuifSmall();
+			closeDialog();
+			closeSettings();
+		}
+
 		const handleClick = function (pixel, target) {
 			if (clickTimeout) {
 				clearTimeout(clickTimeout);
@@ -3905,16 +3946,15 @@
 			}
 
 			const feature = target.closest('.ol-control') ? undefined : map.forEachFeatureAtPixel(pixel,
-				function (feature) { if ('shipname' in feature) { return feature; } }, { hitTolerance: 10 });
+				function (feature) { if ('ship' in feature) { return feature; } }, { hitTolerance: 10 });
 
 			if (feature) {
-				showShipcard(feature.mmsi);
+				closeWindowsForNew()
+				showShipcard(feature.ship.mmsi);
 			}
 			else {
 				clickTimeout = setTimeout(function () {
-					showShipcard(null);
-					hideMenuifSmall();
-					closeDialog();
+					closeWindowsForNew()
 					clickTimeout = null;
 				}, 300);
 
@@ -3923,7 +3963,6 @@
 		};
 
 		function initMap() {
-
 
 			map = new ol.Map({
 
@@ -3936,10 +3975,21 @@
 				controls: []
 			})
 
-			addMapLayer();
+			for (let [key, value] of Object.entries(basemaps)) {
+				map.addLayer(value);
+				value.setVisible(false);
+			}
+
+			for (let [key, value] of Object.entries(overlapmaps)) {
+				map.addLayer(value);
+				value.setVisible(false);
+			}
+
 			[shapeLayer, trackLayer, markerLayer, labelLayer, extraLayer].forEach(layer => {
 				map.addLayer(layer);
 			});
+
+			triggerMapLayer();
 
 			map.on('pointermove', function (evt) {
 				if (evt.dragging) {
@@ -3969,16 +4019,54 @@
 				const target = map.getTargetElement();
 
 				const feature = target.closest('.ol-control') ? undefined : map.forEachFeatureAtPixel(pixel,
-					function (feature) { if ('shipname' in feature) { return feature; } }, { hitTolerance: 10 });
+					function (feature) { if ('shipname' in feature || 'station' in feature) { return feature; } }, { hitTolerance: 10 });
 
 				if (feature) {
-					showContextMenu(evt, feature.mmsi, ["mmsi", "mmsi-map"]);
+					if ('station' in feature)
+						showContextMenu(evt, feature.mmsi, ["station"]);
+					else
+						showContextMenu(evt, feature.mmsi, ["mmsi", "mmsi-map"]);
 				} else {
 					showContextMenu(evt, 0, ['settings', 'ctx-map']);
 				}
 			});
 
+			const baseMapSelector = document.getElementById("baseMapSelector");
+
+			baseMapSelector.innerHTML = '';
+
+			Object.keys(basemaps).forEach(key => {
+				const option = document.createElement("option");
+				option.value = key;
+				option.textContent = key;
+				baseMapSelector.appendChild(option);
+			});
+
+			baseMapSelector.addEventListener('change', function () { setMap(this.value); });
+
+			const overlayContainer = document.getElementById('overlayContainer');
+
+			Object.keys(overlapmaps).forEach(key => {
+				const checkbox = document.createElement('input');
+				checkbox.type = 'checkbox';
+				checkbox.id = key;
+				checkbox.name = key;
+
+				const label = document.createElement('label');
+				label.setAttribute('for', key);
+				label.textContent = key;
+
+				overlayContainer.appendChild(checkbox);
+				overlayContainer.appendChild(label);
+
+				overlayContainer.appendChild(document.createElement('br'));
+
+				checkbox.addEventListener('change', function () {
+					overlapmaps[key].setVisible(this.checked);
+				});
+			});
 		}
+
 		function setLabel(b) {
 			if (settings.label != b) toggleLabel();
 		}
@@ -4236,19 +4324,16 @@
 
 					row.addEventListener("mouseover", function (e) {
 						startHover(ship.mmsi);
-						//L.DomEvent.stopPropagation(e);
 					});
 					row.addEventListener("mouseout", function (e) {
 						stopHover();
-						//L.DomEvent.stopPropagation(e);
 					});
 					row.addEventListener("click", function (e) {
 						showShipcard(ship.mmsi);
-						//L.DomEvent.stopPropagation(e);
 					});
 					row.addEventListener("contextmenu", function (e) {
 						showContextMenu(event, ship.mmsi, ["mmsi", "mmsi-map"]);
-						//L.DomEvent.stopPropagation(e);
+						sss
 					});
 
 					var cell1 = row.insertCell(0);
@@ -4318,7 +4403,6 @@
 		}
 
 		function toggleTablecard() {
-			// tableside is not active and width of screen is less than 800px switch tabs
 			if (!document.getElementById("tableside").classList.contains("active") && window.innerWidth < 800) {
 				settings.tab = "ships";
 				selectTab();
@@ -4351,7 +4435,6 @@
 
 			isDragging = true;
 
-			// take into account the header bar
 			var boundingRect = statcard.getBoundingClientRect();
 
 			const menubar = document.getElementById("menubar");
@@ -4382,14 +4465,11 @@
 				statcard.style.left = left + "px";
 				statcard.style.right = "auto";
 			}
-
-			//L.DomEvent.stopPropagation(event);
 		}
 
 		function endDrag(event) {
 			isDragging = false;
 			statcard.style.cursor = "auto";
-			//L.DomEvent.stopPropagation(event);
 		}
 
 		statcard.addEventListener("mousedown", startDrag);
@@ -4892,7 +4972,6 @@
 			if (icon.startsWith("fa")) {
 				icon = "question_mark";
 			}
-			//div.innerHTML = '<i class="' + icon + '"_icon"></i><span>' + txt + '</span>';
 			div.innerHTML = '<i class="' + icon + '_icon"></i><span>' + txt + "</span>";
 
 			div.setAttribute("onclick", onclick);
@@ -4913,8 +4992,6 @@
 		}
 
 		function hideMenuifSmall() {
-			//if(window.matchMedia("(max-height: 1000px)").matches)
-			// always hide
 			hideMenu();
 		}
 
@@ -4970,16 +5047,9 @@
 			return [coordinate[0] + delta[1] * distance, coordinate[1] + delta[0] * distance];
 		}
 
-		function setTrackColor(v) {
-			settings.track_color = v;
-			fetchTracks();
-		}
-
-		function setShipStyling(a, v) {
+		function setMapSetting(a, v) {
 			settings[a] = v;
 			saveSettings();
-
-			clearHoverMarker();
 			redrawMap();
 		}
 
@@ -5969,10 +6039,13 @@
 			}
 		}
 
-		const showLabelShip = function (id, mmsi) {
-			id.innerHTML = getTooltipContent(shipsDB[mmsi].raw);
+		const showTooltipShip = function (id, mmsi) {
+			if (mmsi == 'station')
+				id.innerHTML = "Receiving Station";
+			else
+				id.innerHTML = getTooltipContent(shipsDB[mmsi].raw);
 
-			const center = ol.proj.fromLonLat([shipsDB[mmsi].raw.lon, shipsDB[mmsi].raw.lat]);
+			const center = mmsi == "station" ? ol.proj.fromLonLat([station.lon, station.lat]) : ol.proj.fromLonLat([shipsDB[mmsi].raw.lon, shipsDB[mmsi].raw.lat]);
 			pixel = map.getPixelFromCoordinate(center);
 			id.style.left = pixel[0] + 'px';
 			id.style.top = pixel[1] + 'px';
@@ -5984,20 +6057,14 @@
 
 		const startHover = function (mmsi, pixel = undefined) {
 
-			/*
-			if (pixel) {
-				hover_info.style.left = pixel[0] + 'px';
-				hover_info.style.top = pixel[1] + 'px';
-			}
-			*/
 			if (mmsi !== hoverMMSI) {
 				if (hoverMMSI || hoverCircleFeature) {
 					stopHover();
 				}
 
-				if (mmsi in shipsDB && shipsDB[mmsi].raw.lon && shipsDB[mmsi].raw.lat) {
+				if (mmsi == "station" || (mmsi in shipsDB && shipsDB[mmsi].raw.lon && shipsDB[mmsi].raw.lat)) {
 					hoverMMSI = mmsi;
-					showLabelShip(hover_info, hoverMMSI);
+					showTooltipShip(hover_info, hoverMMSI);
 				}
 				updateHoverMarker();
 				trackLayer.changed();
@@ -6035,8 +6102,14 @@
 
 		function getFeatureMMSI(pixel, target) {
 			const feature = target.closest('.ol-control') ? undefined : map.forEachFeatureAtPixel(pixel,
-				function (feature) { if ('shipname' in feature) { return feature; } }, { hitTolerance: 10 });
-			return feature ? feature.mmsi : undefined;
+				function (feature) { if ('ship' in feature || 'station' in feature) { return feature; } }, { hitTolerance: 10 });
+
+			if(feature) {
+				if('ship' in feature) return feature.ship.mmsi;
+				else return 'station';
+			}
+
+			return undefined;
 		}
 
 		const handlePointerMove = function (pixel, target) {
@@ -6135,7 +6208,6 @@
 			settings.show_range = settings.show_range == "true" || settings.show_range == true;
 			settings.show_station = settings.show_station == "true" || settings.show_station == true;
 			settings.latlon_in_dms = settings.latlon_in_dms == "true" || settings.latlon_in_dms == true;
-			settings.dim_in_feet = settings.dim_in_feet == "true" || settings.dim_in_feet == true;
 		}
 
 		function mapResetViewZoom(z, m) {
@@ -6423,6 +6495,7 @@
 				});
 
 				stationFeature.setStyle([CircleStyle, svgIconStyle]);
+				stationFeature.station = "Receiving Station";
 				extraVector.addFeature(stationFeature);
 			}
 
@@ -6444,23 +6517,11 @@
 				}
 			}
 
-			// plot the center on the map
-			if (!settings.fix_center || center == null || !center.hasOwnProperty("lat") || !center.hasOwnProperty("lon")) {
-				if (marker_center) {
-					extraVector.removeFeature(stationFeature);
-					stationFeature = undefined;
-				}
-			} else {
-				if (!stationFeature) {
-					marker_center = L.circleMarker([center.lat, center.lon], { interactive: false, color: "black", radius: 12, weight: 4, fillOpacity: 0, pane: "locationMarker" });
-					marker_center.addTo(map);
-				} else {
-					marker_center.setLatLng([center.lat, center.lon]);
-				}
-			}
-
 			if (settings.fix_center && center != null && center.hasOwnProperty("lat") && center.hasOwnProperty("lon")) {
-				map.panTo([center.lat, center.lon]);
+
+				let view = map.getView();
+				view.setCenter(ol.proj.fromLonLat([center.lon, center.lat]));
+
 				settings.lat = center.lat;
 				settings.lon = center.lon;
 			}
@@ -6500,12 +6561,6 @@
 				}
 				if (!visible) shipcardMinIfMaxonMobile();
 			}
-		}
-
-		function setLabelColor(v, c) {
-			settings[v] = c;
-			saveSettings();
-			applyDynamicStyling();
 		}
 
 		function compareObjects(obj1, obj2) {
@@ -6654,7 +6709,7 @@
 			/* 
 	ok = await fetchShipsBinary();
 	if (!ok) return;
-
+	
 	const differences = compareObjects(shipsDB, shipsDB2);
 	console.log("Differences:", differences);
 */
@@ -6683,6 +6738,8 @@
 			labelVector.clear();
 			trackVector.clear();
 
+			const includeLabels = (settings.show_labels === "dynamic" && (map.getView().getZoom() > 11.5)) || settings.show_labels === "always";
+
 			for (let [mmsi, entry] of Object.entries(shipsDB)) {
 				let ship = entry.raw;
 				if (ship.lat != null && ship.lon != null && ship.lat != 0 && ship.lon != 0 && ship.lat < 90 && ship.lon < 180) {
@@ -6696,17 +6753,12 @@
 						geometry: point
 					})
 
-					feature.rot = ship.rot
-					feature.cx = ship.cx
-					feature.cy = ship.cy
-					feature.imgSize = ship.imgSize
-					feature.shipname = ship.shipname
-					feature.mmsi = ship.mmsi
+					feature.ship = ship;
 
 					markerFeatures[ship.mmsi] = feature
 					markerVector.addFeature(feature)
 
-					if (map.getView().getZoom() > 13.5)
+					if (includeLabels)
 						labelVector.addFeature(feature)
 
 					if (map.getView().getZoom() > 11.5) {
@@ -6721,7 +6773,6 @@
 					}
 				}
 			}
-
 
 			for (let [mmsi, entry] of Object.entries(paths)) {
 
@@ -6779,6 +6830,7 @@
 
 			updateRangeColor();
 			updateMapLayer();
+			redrawMap();
 		}
 
 
@@ -6844,7 +6896,6 @@
 		function updateSettingsTab() {
 			document.getElementById("settings_darkmode").checked = settings.dark_mode;
 			document.getElementById("settings_latlon_in_dms").checked = settings.latlon_in_dms;
-			document.getElementById("settings_dim_in_feet").checked = settings.dim_in_feet;
 			document.getElementById("settings_metric").value = getMetrics().toLowerCase();
 			document.getElementById("settings_show_station").checked = settings.show_station;
 			document.getElementById("settings_fading").checked = settings.fading;
@@ -6853,9 +6904,8 @@
 
 			document.getElementById("settings_show_range").checked = settings.show_range;
 
-			document.getElementById("settings_tooltipOverlap").checked = !settings.tooltipOverlap;
-			document.getElementById("settings_tooltipLean").checked = settings.tooltipLean;
-			document.getElementById("settings_labels").checked = settings.labels;
+			document.getElementById("settings_labels_declutter").checked = settings.labels_declutter;
+			document.getElementById("settings_show_labels").value = settings.show_labels.toLowerCase();
 
 			document.getElementById("settings_shipoutline_border").value = settings.shipoutline_border;
 			document.getElementById("settings_shipoutline_inner").value = settings.shipoutline_inner;
@@ -7058,17 +7108,25 @@
 
 		addTileLayer("Satellite", "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", "Esri et al.", undefined, "");
 
-		addOverlayLayer("OpenSeaMap", L.tileLayer("http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png", { attribution: 'Map data: &copy; <a href="http://www.openseamap.org">OSM</a>', maxZoom: 18 }));
-		addOverlayLayer(
-			"NOAA",
-			L.tileLayer.wms("https://gis.charttools.noaa.gov/arcgis/rest/services/MCS/ENCOnline/MapServer/exts/MaritimeChartService/WMSServer?", {
-				layers: "1,2,3,4,5,6,7",
-				format: "image/png",
-				transparent: true,
-				version: "1.3.0",
-			}),
-		);
+		addOverlayLayer("OpenSeaMap", new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: 'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
+				attributions: 'Map data: &copy; <a href="http://www.openseamap.org">OpenSeaMap</a>'
+			})
+		}));
 
+		addOverlayLayer("NOAA", new ol.layer.Tile({
+			source: new ol.source.TileWMS({
+				url: 'https://gis.charttools.noaa.gov/arcgis/rest/services/MCS/ENCOnline/MapServer/exts/MaritimeChartService/WMSServer?',
+				params: {
+					'LAYERS': '1,2,3,4,5,6,7',
+					'FORMAT': 'image/png',
+					'TRANSPARENT': 'true',
+					'VERSION': '1.3.0'
+				},
+				serverType: 'geoserver'
+			})
+		}));
 		let mdabout = "This content can be defined by the owner of the station";
 
 		console.log("Starting plugin code");
@@ -7129,6 +7187,7 @@
 
 		if (isAndroid()) showMenu();
 		main();
+
 	</script>
 </body>
 
