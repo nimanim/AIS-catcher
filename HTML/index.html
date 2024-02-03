@@ -3887,9 +3887,7 @@
 
 				if (settings.map_night_overlay.length > 0) {
 					for (let i = 0; i < settings.map_night_overlay.length; i++) {
-						if (settings.map_night_overlay[i] in overlapmaps) {
-							overlapmaps[settings.map_night_overlay[i]].addTo(map);
-						}
+						overlapmaps[settings.map_night_overlay[i]].setVisible(settings.map_night_overlay[i] in overlapmaps);
 					}
 				}
 			} else {
@@ -3902,9 +3900,7 @@
 
 				if (settings.map_day_overlay.length > 0) {
 					for (let i = 0; i < settings.map_day_overlay.length; i++) {
-						if (settings.map_day_overlay[i] in overlapmaps) {
-							overlapmaps[settings.map_day_overlay[i]].addTo(map);
-						}
+						overlapmaps[settings.map_day_overlay[i]].setVisible(settings.map_day_overlay[i] in overlapmaps);
 					}
 				}
 			}
@@ -4156,7 +4152,7 @@
 			setTimeout(function () {
 				extraVector.removeFeature(marker);
 			}, 1000);
-			
+
 		}
 
 		function ToggleFireworks() {
