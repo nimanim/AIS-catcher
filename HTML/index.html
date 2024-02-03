@@ -4037,6 +4037,7 @@
 				option.textContent = key;
 				baseMapSelector.appendChild(option);
 			});
+			baseMapSelector.value = settings.dark_mode ? settings.map_night : settings.map_day;
 
 			baseMapSelector.addEventListener('change', function () { setMap(this.value); });
 
@@ -4048,7 +4049,7 @@
 				checkbox.id = key;
 				checkbox.name = key;
 				checkbox.checked = settings.map_overlay.includes(key);
-				
+
 				const label = document.createElement('label');
 				label.setAttribute('for', key);
 				label.textContent = key;
