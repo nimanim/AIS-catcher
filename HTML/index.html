@@ -3055,7 +3055,6 @@
 			setFading(settings.fading);
 
 			updateFocusMarker();
-			clearHoverMarker();
 
 			settings.tab = t;
 			settings.welcome = false;
@@ -3999,6 +3998,7 @@
 
 			map.on('moveend', function (evt) {
 				debouncedSaveSettings();
+				debouncedDrawMap();
 			});
 
 
@@ -6129,6 +6129,7 @@
 		}
 
 		const debouncedSaveSettings = debounce(saveSettings, 250);
+		const debouncedDrawMap = debounce(redrawMap, 250);
 
 		function updateMapURL() {
 			if (isAndroid()) return;
@@ -6324,13 +6325,6 @@
 		function isShipcardMax() {
 			var e = document.getElementById("shipcard").classList;
 			return e.contains("shipcard-ismax");
-		}
-
-		function clearHoverMarker() {
-			if (marker_hover != null) {
-				map.removeLayer(marker_hover);
-				marker_hover = null;
-			}
 		}
 
 		function getStringfromMsgType(m) {
