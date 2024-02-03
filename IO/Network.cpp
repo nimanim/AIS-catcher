@@ -437,6 +437,115 @@ namespace IO {
 		return *this;
 	}
 
+	void CommunityHub::Receive(const AIS::GPS* data, int len, TAG& tag) {
+
+		if (!filter.includeGPS()) return;
+
+		if (!JSON) {
+
+			for (int i = 0; i < len; i++) {
+
+				if (SendTo((data[i].getNMEA() + "\r\n").c_str()) < 0) {
+					if (!persistent) {
+						std::cerr << "TCP feed: requesting termination.\n";
+						StopRequest();
+					}
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < len; i++) {
+
+				if (SendTo((data[i].getJSON() + "\r\n").c_str()) < 0) {
+					if (!persistent) {
+						std::cerr << "TCP feed: requesting termination.\n";
+						StopRequest();
+					}
+				}
+			}
+		}
+	}
+
+	void CommunityHub::Receive(const AIS::Message* data, int len, TAG& tag) {
+		if (!JSON) {
+			for (int i = 0; i < len; i++) {
+				if (!filter.include(data[i])) continue;
+
+				for (const auto& s : data[i].NMEA) {
+					if (SendTo((s + "\r\n").c_str()) < 0)
+						if (!persistent) {
+							std::cerr << "TCP feed: requesting termination.\n";
+							StopRequest();
+						}
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < len; i++) {
+				if (!filter.include(data[i])) continue;
+
+				if (SendTo((data[i].getNMEAJSON(tag.mode, tag.level, tag.ppm) + "\r\n").c_str()) < 0)
+					if (!persistent) {
+						std::cerr << "TCP feed: requesting termination.\n";
+						StopRequest();
+					}
+			}
+		}
+	}
+
+	void CommunityHub::Start() {
+
+		std::cerr << "TCP feed: open socket for host: " << host << ", port: " << port << ", filter: " << Util::Convert::toString(filter.isOn());
+		if (filter.isOn()) std::cerr << ", allowed: {" << filter.getAllowed() << "}";
+		std::cerr << ", PERSIST: " << Util::Convert::toString(persistent);
+		std::cerr << ", KEEP_ALIVE: " << Util::Convert::toString(keep_alive);
+		std::cerr << ", JSON: " << Util::Convert::toString(JSON) << ", status: ";
+
+		if (tcp.connect(host, port, persistent, 0, keep_alive))
+			std::cerr << "connected\n";
+		else {
+			if (!persistent) {
+				std::cerr << "failed\n";
+				throw std::runtime_error("TCP feed cannot connect to " + host + " port " + port);
+			}
+			else
+				std::cerr << "pending\n";
+		}
+	}
+
+	void CommunityHub::Stop() {
+		tcp.disconnect();
+	}
+
+	Setting& CommunityHub::Set(std::string option, std::string arg) {
+		Util::Convert::toUpper(option);
+
+		if (option == "HOST") {
+			host = arg;
+		}
+		else if (option == "PORT") {
+			port = arg;
+		}
+		else if (option == "GROUPS_IN") {
+			StreamIn<AIS::Message>::setGroupsIn(Util::Parse::Integer(arg));
+			StreamIn<AIS::GPS>::setGroupsIn(Util::Parse::Integer(arg));
+		}
+		else if (option == "KEEP_ALIVE") {
+			keep_alive = Util::Parse::Switch(arg);
+		}
+		else if (option == "JSON") {
+			JSON = Util::Parse::Switch(arg);
+		}
+		else if (option == "PERSIST") {
+			persistent = Util::Parse::Switch(arg);
+		}
+		else if (!filter.SetOption(option, arg)) {
+			throw std::runtime_error("TCP client - unknown option: " + option);
+		}
+		return *this;
+	}
+
+
 	// TCP output to server
 
 	void TCPClientStreamer::Receive(const AIS::GPS* data, int len, TAG& tag) {

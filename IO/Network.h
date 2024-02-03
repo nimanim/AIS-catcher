@@ -203,4 +203,28 @@ namespace IO {
 		void Start();
 		void Stop() {}
 	};
+
+	class CommunityHub : public OutputMessage {
+		::TCP::Client tcp;
+		AIS::Filter filter;
+		bool JSON = false;
+		std::string host, port;
+		bool keep_alive = false;
+		bool persistent = true;
+
+	public:
+		Setting& Set(std::string option, std::string arg);
+
+		void Receive(const AIS::Message* data, int len, TAG& tag);
+		void Receive(const AIS::GPS* data, int len, TAG& tag);
+
+		void Start();
+		void Stop();
+
+		int SendTo(std::string str) {
+
+			return tcp.send(str.c_str(), (int)str.length());
+		}
+		void setJSON(bool b) { JSON = b; }
+	};
 }
