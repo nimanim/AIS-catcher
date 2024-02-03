@@ -2390,6 +2390,21 @@
 						</span>
 					</div>
 				</section>
+				<section>
+					<div>
+						<span>Show Distance Circles</span><span>
+							<input type="checkbox" id="settings_distance_circles"
+								onchange="setMapSetting('distance_circles',this.checked)" />
+						</span>
+					</div>
+					<div>
+						<span>Color</span><span>
+							<input type="color" class="color-picker" id="settings_distance_circle_color"
+								onchange="removeDistanceCircles(); setMapSetting('distance_circle_color',this.value)" />
+						</span>
+					</div>
+				</section>
+
 			</div>
 		</div>
 
@@ -3004,6 +3019,7 @@
 				icon_scale: 0.85,
 				track_weight: 1,
 				show_range: false,
+				distance_circles: true,
 				map_day: "Voyager (no labels)",
 				map_overlay: [],
 				map_night: "Dark Matter (no labels)",
@@ -3215,9 +3231,6 @@
 				stroke: new ol.style.Stroke({
 					color: clr,
 					width: 2
-				}),
-				fill: new ol.style.Fill({
-					color: 'rgba(0, 0, 0, 0)'
 				})
 			});
 		}
@@ -4633,28 +4646,99 @@
 			range_outline_short = range_outline_short.map(point => ol.proj.fromLonLat(point));
 		}
 
+		let rangeFeature = undefined;
+		let rangeShortFeature = undefined;
+
 		function drawRange() {
-			rangeVector.clear();
+			if (rangeFeature) {
+				rangeVector.removeFeature(rangeFeature);
+				rangeFeature = undefined;
+			}
+
+			if (rangeShortFeature) {
+				rangeVector.removeFeature(rangeShortFeature);
+				rangeShortFeature = undefined;
+			}
 
 			if (!settings.show_range) return;
 
 			if (range_outline) {
-				const rangeFeature = new ol.Feature({
+				rangeFeature = new ol.Feature({
 					geometry: new ol.geom.Polygon([range_outline])
 				});
 
 				rangeFeature.short = false;
+				rangeFeature.tooltip = "Station Range";
 				rangeVector.addFeature(rangeFeature);
 			}
 
 			if (range_outline_short) {
-				const rangeShortFeature = new ol.Feature({
+				rangeShortFeature = new ol.Feature({
 					geometry: new ol.geom.Polygon([range_outline_short])
 				});
+
+				rangeShortFeature.tooltip = "Station Range";
 				rangeShortFeature.short = true;
 				rangeVector.addFeature(rangeShortFeature);
 			}
+
 		}
+
+		var distanceFeatures = undefined;
+		var distanceLat = undefined;
+		var distanceLon = undefined;
+		var distanceMetric = undefined;
+
+		function removeDistanceCircles() {
+			if (distanceFeatures) {
+				for (var i = 0; i < distanceFeatures.length; i++)
+					rangeVector.removeFeature(distanceFeatures[i]);
+			}
+			distanceFeatures = undefined;
+		}
+
+		function updateDistanceCircles() {
+			const lat = station.lat;
+			const lon = station.lon;
+
+			if (!settings.distance_circles) {
+				removeDistanceCircles();
+				return;
+			}
+
+			if (!distanceFeatures || distanceLat != lat || distanceLon != lon || distanceMetric != settings.metric) {
+
+				removeDistanceCircles();
+
+				distanceLat = lat;
+				distanceLon = lon;
+				distanceMetric = settings.metric;
+
+				distanceFeatures = [];
+
+				var greyLineStyle = new ol.style.Style({
+					stroke: new ol.style.Stroke({
+						color: settings.distance_circle_color,
+						width: 1
+					})
+				});
+
+				const conv = settings.metric === "DEFAULT" ? 1 : settings.metric === "SI" ? 1.852 : 1.15078;
+
+				const range = [10000, 25000, 50000, 100000];
+
+				for (var i = 0; i < range.length; i++) {
+					const distanceCircle = new ol.Feature({
+						geometry: new ol.geom.Circle(ol.proj.fromLonLat([lon, lat]), range[i] * conv)
+					});
+					distanceCircle.setStyle(greyLineStyle);
+					distanceCircle.tooltip = range[i] / 1000 + "K " + getDistanceUnit();
+					rangeVector.addFeature(distanceCircle);
+					distanceFeatures.push(distanceCircle);
+				}
+			}
+		}
+
 
 		let view_offset = 0;
 
@@ -6030,14 +6114,13 @@
 			}
 		}
 
-		const showTooltipShip = function (id, mmsi) {
-			if (mmsi == 'station')
-				id.innerHTML = "Receiving Station";
-			else
+		const showTooltipShip = function (id, mmsi, pixel) {
+			if (mmsi in shipsDB)
 				id.innerHTML = getTooltipContent(shipsDB[mmsi].raw);
+			else
+				id.innerHTML = mmsi;
 
-			const center = mmsi == "station" ? ol.proj.fromLonLat([station.lon, station.lat]) : ol.proj.fromLonLat([shipsDB[mmsi].raw.lon, shipsDB[mmsi].raw.lat]);
-			pixel = map.getPixelFromCoordinate(center);
+
 			id.style.left = pixel[0] + 'px';
 			id.style.top = pixel[1] + 'px';
 
@@ -6053,9 +6136,15 @@
 					stopHover();
 				}
 
-				if (mmsi == "station" || (mmsi in shipsDB && shipsDB[mmsi].raw.lon && shipsDB[mmsi].raw.lat)) {
+				if ((mmsi in shipsDB && shipsDB[mmsi].raw.lon && shipsDB[mmsi].raw.lat)) {
+					const center = ol.proj.fromLonLat([shipsDB[mmsi].raw.lon, shipsDB[mmsi].raw.lat]);
+					pixel = map.getPixelFromCoordinate(center);
 					hoverMMSI = mmsi;
-					showTooltipShip(hover_info, hoverMMSI);
+					showTooltipShip(hover_info, hoverMMSI, pixel);
+				}
+				else {
+					hoverMMSI = mmsi;
+					showTooltipShip(hover_info, hoverMMSI, pixel);
 				}
 				updateHoverMarker();
 				trackLayer.changed();
@@ -6064,6 +6153,7 @@
 				}
 			}
 		}
+
 
 		function updateHoverMarker() {
 
@@ -6091,13 +6181,24 @@
 			}
 		}
 
+		function getFeature(pixel, target) {
+			const feature = target.closest('.ol-control') ? undefined : map.forEachFeatureAtPixel(pixel,
+				function (feature) { if ('ship' in feature || 'tooltip' in feature) { return feature; } }, { hitTolerance: 10 });
+
+			if (feature) {
+				return feature;
+			}
+
+			return undefined;
+		}
+
 		function getFeatureMMSI(pixel, target) {
 			const feature = target.closest('.ol-control') ? undefined : map.forEachFeatureAtPixel(pixel,
-				function (feature) { if ('ship' in feature || 'station' in feature) { return feature; } }, { hitTolerance: 10 });
+				function (feature) { if ('ship' in feature || 'tooltip' in feature) { return feature; } }, { hitTolerance: 10 });
 
 			if (feature) {
 				if ('ship' in feature) return feature.ship.mmsi;
-				else return 'station';
+				else return feature.tooltip;
 			}
 
 			return undefined;
@@ -6480,7 +6581,7 @@
 			});
 
 			stationFeature.setStyle([CircleStyle, svgIconStyle]);
-			stationFeature.station = "Receiving Station";
+			stationFeature.tooltip = "Receiving Station";
 			extraVector.addFeature(stationFeature);
 
 			// MMSI is driving center but does not exist
@@ -6783,6 +6884,8 @@
 			updateTablecard();
 
 			drawStation(station);
+			updateDistanceCircles();
+
 			//await plotRange();
 
 		}
@@ -6888,6 +6991,8 @@
 			document.getElementById("settings_shipselection_color").value = settings.shipselection_color;
 
 			document.getElementById("settings_show_range").checked = settings.show_range;
+			document.getElementById("settings_distance_circles").checked = settings.distance_circles;
+			document.getElementById("settings_distance_circle_color").value = settings.distance_circle_color;
 
 			document.getElementById("settings_labels_declutter").checked = settings.labels_declutter;
 			document.getElementById("settings_show_labels").value = settings.show_labels.toLowerCase();
