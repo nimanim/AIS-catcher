@@ -3005,9 +3005,8 @@
 				track_weight: 1,
 				show_range: false,
 				map_day: "Voyager (no labels)",
-				map_day_overlay: [],
+				map_overlay: [],
 				map_night: "Dark Matter (no labels)",
-				map_night_overlay: [],
 				zoom: 10,
 				lat: 0,
 				lon: 0,
@@ -3855,12 +3854,8 @@
 
 			if (activeTileLayer) {
 
-				overlays_day = JSON.parse(JSON.stringify(settings.map_day_overlay));
-				overlays_night = JSON.parse(JSON.stringify(settings.map_night_overlay));
-
-
-				settings.map_day_overlay = JSON.parse(JSON.stringify(overlays_day));
-				settings.map_night_overlay = JSON.parse(JSON.stringify(overlays_night));
+				overlays = JSON.parse(JSON.stringify(settings.map_overlay));
+				settings.map_overlay = JSON.parse(JSON.stringify(overlays));
 
 				triggerMapLayer();
 			}
@@ -3885,23 +3880,17 @@
 				activeTileLayer = settings.map_night in basemaps ? basemaps[settings.map_night] : basemaps[Object.keys(basemaps)[0]];
 				activeTileLayer.setVisible(true);
 
-				if (settings.map_night_overlay.length > 0) {
-					for (let i = 0; i < settings.map_night_overlay.length; i++) {
-						overlapmaps[settings.map_night_overlay[i]].setVisible(settings.map_night_overlay[i] in overlapmaps);
-					}
-				}
 			} else {
 				if (activeTileLayer)
 					activeTileLayer.setVisible(false);
 
 				activeTileLayer = settings.map_day in basemaps ? basemaps[settings.map_day] : basemaps[Object.keys(basemaps)[0]];
 				activeTileLayer.setVisible(true);
-				return;
+			}
 
-				if (settings.map_day_overlay.length > 0) {
-					for (let i = 0; i < settings.map_day_overlay.length; i++) {
-						overlapmaps[settings.map_day_overlay[i]].setVisible(settings.map_day_overlay[i] in overlapmaps);
-					}
+			if (settings.map_overlay.length > 0) {
+				for (let i = 0; i < settings.map_overlay.length; i++) {
+					overlapmaps[settings.map_overlay[i]].setVisible(settings.map_overlay[i] in overlapmaps);
 				}
 			}
 		}
@@ -4058,7 +4047,8 @@
 				checkbox.type = 'checkbox';
 				checkbox.id = key;
 				checkbox.name = key;
-
+				checkbox.checked = settings.map_overlay.includes(key);
+				
 				const label = document.createElement('label');
 				label.setAttribute('for', key);
 				label.textContent = key;
@@ -4070,10 +4060,21 @@
 
 				checkbox.addEventListener('change', function () {
 					overlapmaps[key].setVisible(this.checked);
+
+					if (this.checked) {
+						if (!settings.map_overlay.includes(key)) {
+							settings.map_overlay.push(key);
+						}
+					} else {
+						const index = settings.map_overlay.indexOf(key);
+						if (index > -1) {
+							settings.map_overlay.splice(index, 1);
+						}
+					}
+					saveSettings();
 				});
 			});
 		}
-
 
 		function toggleLabel() {
 			if (settings.show_labels == "never") {
