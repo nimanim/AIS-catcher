@@ -2968,9 +2968,11 @@
 		var iconLabelSpan = null,
 			iconStationSpan = null,
 			evtSource = null,
-			evtSourceMap = null;
-		range_outline = undefined;
-		range_outline_short = undefined;
+			evtSourceMap = null,
+			range_outline = undefined,
+			range_outline_short = undefined;
+
+		const baseMapSelector = document.getElementById("baseMapSelector");
 
 		var rtCount = 0;
 		var StationControlDiv = null;
@@ -3495,6 +3497,8 @@
 				event.preventDefault();
 				event.stopPropagation();
 			}
+
+			baseMapSelector.value = settings.dark_mode ? settings.map_night : settings.map_day;
 
 			mapMenu.style.display = "block";
 
@@ -4026,8 +4030,6 @@
 					showContextMenu(evt, 0, ['settings', 'ctx-map']);
 				}
 			});
-
-			const baseMapSelector = document.getElementById("baseMapSelector");
 
 			baseMapSelector.innerHTML = '';
 
