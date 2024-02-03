@@ -2239,7 +2239,8 @@
 				<section>
 					<div>
 						<span>Show Station Icon</span><span>
-							<input type="checkbox" id="settings_show_station" onchange="setShowStation(this.checked)" />
+							<input type="checkbox" id="settings_show_station"
+								onchange="setMapSetting('show_station',this.checked)" />
 						</span>
 					</div>
 					<div>
@@ -2982,8 +2983,7 @@
 		var refreshIntervalMs = 2500;
 		var range_update_time = null;
 		let updateInProgress = false;
-		let activeTileLayer = null;
-
+		let activeTileLayer = undefined;
 		var
 			marker_tracks = new Set(),
 			marker_fireworks = [];
@@ -4012,7 +4012,7 @@
 
 			map.getTargetElement().addEventListener('contextmenu', function (evt) {
 
-				const mmsi = getFeatureMMSI(map.getEventPixel(evt),  map.getTargetElement())
+				const mmsi = getFeatureMMSI(map.getEventPixel(evt), map.getTargetElement())
 
 				if (!mmsi)
 					showContextMenu(evt, 0, ['settings', 'ctx-map']);
@@ -4512,10 +4512,6 @@
 
 			await fetchRange();
 			drawRange();
-		}
-
-		function setShowStation(b) {
-			settings.show_station = b;
 		}
 
 		function setFading(b) {
@@ -6449,42 +6445,43 @@
 			const hasNoStation = settings.show_station == false || station == null || !station.hasOwnProperty("lat") || !station.hasOwnProperty("lon");
 			const hasMMSIcenter = settings.center_point && settings.center_point != "STATION" && settings.center_point in shipsDB;
 
-			// plot station on map
-			if (hasNoStation) {
+			if (stationFeature) {
 				extraVector.removeFeature(stationFeature);
-				stationFeature = null;
-			} else {
-				const radius = 10;
-				let svgIconStyle = new ol.style.Style({
-					image: new ol.style.Icon({
-						anchor: [0.5, 0.5],
-						scale: 0.3,
-						color: 'white', //getComputedStyle(document.documentElement).getPropertyValue('--secondary-color'),
-						src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"%3E%3Cpath fill="white" d="M198-278q-60-58-89-133T80-560q0-74 29-149t89-133l35 35q-50 49-76.5 116.5T130-560q0 63 26.5 130.5T233-313l-35 35Zm92-92q-40-37-59-89.5T212-560q0-48 19-100.5t59-89.5l35 35q-29 29-46 72.5T262-560q0 35 17.5 79.5T325-405l-35 35Zm4 290 133-405q-17-12-27.5-31T389-560q0-38 26.5-64.5T480-651q38 0 64.5 26.5T571-560q0 25-10.5 44T533-485L666-80h-59l-29-90H383l-30 90h-59Zm108-150h156l-78-238-78 238Zm268-140-35-35q29-29 46-72.5t17-82.5q0-35-17.5-79.5T635-715l35-35q39 37 58.5 89.5T748-560q0 47-19.5 100T670-370Zm92 92-35-35q49-49 76-116.5T830-560q0-63-27-130.5T727-807l35-35q60 58 89 133t29 149q0 75-27.5 149.5T762-278Z"/%3E%3C/svg%3E',
-					})
-				});
-
-				let CircleStyle = new ol.style.Style({
-					image: new ol.style.Circle({
-						radius: radius,
-						stroke: new ol.style.Stroke({
-							color: 'white',
-							width: 3
-						}),
-						fill: new ol.style.Fill({
-							color: getComputedStyle(document.documentElement).getPropertyValue('--tertiary-color')
-						}),
-					})
-				});
-
-				let stationFeature = new ol.Feature({
-					geometry: new ol.geom.Point(ol.proj.fromLonLat([station.lon, station.lat]))
-				});
-
-				stationFeature.setStyle([CircleStyle, svgIconStyle]);
-				stationFeature.station = "Receiving Station";
-				extraVector.addFeature(stationFeature);
+				stationFeature = undefined;
 			}
+
+			if (hasNoStation) return;
+
+			const radius = 10;
+			let svgIconStyle = new ol.style.Style({
+				image: new ol.style.Icon({
+					anchor: [0.5, 0.5],
+					scale: 0.3,
+					color: 'white', //getComputedStyle(document.documentElement).getPropertyValue('--secondary-color'),
+					src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"%3E%3Cpath fill="white" d="M198-278q-60-58-89-133T80-560q0-74 29-149t89-133l35 35q-50 49-76.5 116.5T130-560q0 63 26.5 130.5T233-313l-35 35Zm92-92q-40-37-59-89.5T212-560q0-48 19-100.5t59-89.5l35 35q-29 29-46 72.5T262-560q0 35 17.5 79.5T325-405l-35 35Zm4 290 133-405q-17-12-27.5-31T389-560q0-38 26.5-64.5T480-651q38 0 64.5 26.5T571-560q0 25-10.5 44T533-485L666-80h-59l-29-90H383l-30 90h-59Zm108-150h156l-78-238-78 238Zm268-140-35-35q29-29 46-72.5t17-82.5q0-35-17.5-79.5T635-715l35-35q39 37 58.5 89.5T748-560q0 47-19.5 100T670-370Zm92 92-35-35q49-49 76-116.5T830-560q0-63-27-130.5T727-807l35-35q60 58 89 133t29 149q0 75-27.5 149.5T762-278Z"/%3E%3C/svg%3E',
+				})
+			});
+
+			let CircleStyle = new ol.style.Style({
+				image: new ol.style.Circle({
+					radius: radius,
+					stroke: new ol.style.Stroke({
+						color: 'white',
+						width: 3
+					}),
+					fill: new ol.style.Fill({
+						color: getComputedStyle(document.documentElement).getPropertyValue('--tertiary-color')
+					}),
+				})
+			});
+
+			stationFeature = new ol.Feature({
+				geometry: new ol.geom.Point(ol.proj.fromLonLat([station.lon, station.lat]))
+			});
+
+			stationFeature.setStyle([CircleStyle, svgIconStyle]);
+			stationFeature.station = "Receiving Station";
+			extraVector.addFeature(stationFeature);
 
 			// MMSI is driving center but does not exist
 			if (!hasMMSIcenter && settings.center_point != "STATION") {
