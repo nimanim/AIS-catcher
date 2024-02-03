@@ -3232,7 +3232,7 @@
 					color: `rgba(${parseInt(c.slice(-6, -4), 16)}, ${parseInt(c.slice(-4, -2), 16)}, ${parseInt(c.slice(-2), 16)}, ${o})`
 				}),
 				stroke: new ol.style.Stroke({
-					color: hoverMMSI && feature.mmsi == hoverMMSI ? settings.shiphover_color : settings.shipoutline_border,
+					color: hoverMMSI && feature.ship.mmsi == hoverMMSI ? settings.shiphover_color : settings.shipoutline_border,
 					width: 2
 				}),
 			});;
