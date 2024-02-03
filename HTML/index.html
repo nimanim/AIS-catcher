@@ -4008,20 +4008,14 @@
 
 			map.getTargetElement().addEventListener('contextmenu', function (evt) {
 
-				const pixel = map.getEventPixel(evt);
-				const target = map.getTargetElement();
+				const mmsi = getFeatureMMSI(map.getEventPixel(evt),  map.getTargetElement())
 
-				const feature = target.closest('.ol-control') ? undefined : map.forEachFeatureAtPixel(pixel,
-					function (feature) { if ('shipname' in feature || 'station' in feature) { return feature; } }, { hitTolerance: 10 });
-
-				if (feature) {
-					if ('station' in feature)
-						showContextMenu(evt, feature.mmsi, ["station"]);
-					else
-						showContextMenu(evt, feature.mmsi, ["mmsi", "mmsi-map"]);
-				} else {
+				if (!mmsi)
 					showContextMenu(evt, 0, ['settings', 'ctx-map']);
-				}
+				else if (mmsi == 'station')
+					showContextMenu(evt, null, ["station"]);
+				else
+					showContextMenu(evt, mmsi, ["mmsi", "mmsi-map"]);
 			});
 
 			baseMapSelector.innerHTML = '';
@@ -6265,9 +6259,9 @@
 		}
 
 
-		function showAllTracks() {
+		async function showAllTracks() {
 			show_all_tracks = true;
-			fetchTracks();
+			await fetchTracks();
 			redrawMap();
 			updateShipcardTrackOption()
 		}
@@ -6756,8 +6750,7 @@
 						var shapeFeature = new ol.Feature({
 							geometry: createShipOutlineGeometry(ship)
 						})
-						shapeFeature.shipname = ship.shipname
-						shapeFeature.mmsi = ship.mmsi
+						shapeFeature.ship = ship
 						shapeFeatures[ship.mmsi] = shapeFeature
 
 						shapeVector.addFeature(shapeFeature)
