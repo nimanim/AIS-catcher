@@ -3976,7 +3976,7 @@
 				target: 'map',
 				view: new ol.View({
 					center: ol.proj.fromLonLat([settings.lon || 0, settings.lat || 0]),
-					zoom: 6,
+					zoom: settings.zoom || 6,
 					enableRotation: false
 				}),
 				controls: []
