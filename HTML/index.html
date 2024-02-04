@@ -3083,21 +3083,8 @@
 		}
 
 		// some functions useful in plugins
-		function addTileLayer(title, url, attribution, maxZoom, subdomains = 'abc') {
-
-			basemaps[title] = new ol.layer.Tile({
-				title: title,
-				source: new ol.source.XYZ({
-					attributions: attribution,
-					url: url,
-					maxZoom: maxZoom,
-					tilePixelRatio: (subdomains) ? 2 : 1, // Adjusted for retina display if subdomains are used
-					crossOrigin: 'anonymous',
-					wrapX: false,
-					visible: false,
-					subdomains: subdomains
-				})
-			});
+		function addTileLayer(title, layer) {
+			basemaps[title] = layer;
 		}
 
 		function removeTileLayer(title) {
@@ -4115,23 +4102,6 @@
 			return "Default";
 		}
 
-		function toggleMetrics() {
-			if (settings.metric == "DEFAULT") {
-				settings.metric = "SI";
-				showNotification("Switched to metric units");
-			} else if (settings.metric == "SI") {
-				settings.metric = "IMPERIAL";
-				showNotification("Switched to imperial units");
-			} else {
-				settings.metric = "DEFAULT";
-				showNotification("Switched to default units");
-			}
-			saveSettings();
-
-			refresh_data();
-			if (table != null) table = null;
-		}
-
 		function addMarker(lat, lon, ch) {
 			var latlon = ol.proj.fromLonLat([lon, lat]);
 			var color = 'grey'; // Default color
@@ -4396,7 +4366,6 @@
 		}
 
 		function updateMarkerCount() {
-			//updateControlClass();
 
 			let count = 0;
 			if (shipsDB != null) {
@@ -4739,7 +4708,7 @@
 			}
 		}
 
-
+		/*
 		let view_offset = 0;
 
 		function readUint8(view) {
@@ -4939,6 +4908,7 @@
 
 			return true;
 		}
+		*/
 
 		async function fetchShips(noDoubleFetch = true) {
 			if (isFetchingShips && noDoubleFetch) {
@@ -5546,6 +5516,7 @@
 		function shipcardismax() {
 			return document.getElementById("shipcard").classList.contains("shipcard-ismax");
 		}
+
 		function shipcardselect(e) {
 			if (shipcardismax()) {
 				e.classList.toggle("shipcard-max-only");
@@ -6795,7 +6766,8 @@
 			if (settings.setcoord == "true" || settings.setcoord == true) {
 				if (station != null && station.hasOwnProperty("lat") && station.hasOwnProperty("lon")) {
 					settings.setcoord = false;
-					//map.panTo([station.lat, station.lon]);
+					let view = map.getView();
+					view.setCenter(ol.proj.fromLonLat([station.lon, station.lat]));
 					saveSettings();
 				}
 			}
@@ -6905,6 +6877,7 @@
 				updateChartColors(chart, colorVariables);
 				chart.update();
 			});
+
 			chartsToUpdateRadar.forEach((chart) => {
 				updateColorRadar(chart);
 				chart.update();
@@ -7167,26 +7140,67 @@
 				});
 		}
 
-		function init_preSettings() { }
-		function init_postSettings() { }
-		function init_postTabsInit() { }
+		addTileLayer("OpenStreetMap", new ol.layer.Tile({
+			source: new ol.source.OSM(),
+			maxZoom: 19
+		}));
 
-		// add the default tile layers and overlay
-		addTileLayer("OpenStreetMap", "https://tile.openstreetmap.org/{z}/{x}/{y}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>', 19);
+		addTileLayer("Positron", new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: 'https://{a-d}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+				attributions: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+				maxZoom: 20
+			})
+		}));
 
-		addTileLayer("Positron", "https://{a-d}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+		addTileLayer("Positron (no labels)", new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: 'https://{a-d}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+				attributions: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+				maxZoom: 20
+			})
+		}));
 
-		addTileLayer("Positron (no labels)", "https://{a-d}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+		addTileLayer("Dark Matter", new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: 'https://{a-d}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+				attributions: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+				maxZoom: 20
+			})
+		}));
 
-		addTileLayer("Dark Matter", "https://{a-d}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+		addTileLayer("Dark Matter (no labels)", new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: 'https://{a-d}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+				attributions: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+				maxZoom: 20
+			})
+		}));
 
-		addTileLayer("Dark Matter (no labels)", "https://{a-d}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+		addTileLayer("Voyager", new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: 'https://{a-d}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+				attributions: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+				maxZoom: 20
+			})
+		}));
 
-		addTileLayer("Voyager", "https://{a-d}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OSMN</a> &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+		addTileLayer("Voyager (no labels)", new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: 'https://{a-d}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',
+				attributions: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+				maxZoom: 20
+			})
+		}));
 
-		addTileLayer("Voyager (no labels)", "https://{a-d}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', 20);
+		addTileLayer("Satellite", new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+				attributions: 'Esri et al.'
+				// maxZoom is not specified, so it defaults to the OpenLayers default
+			})
+		}));
 
-		addTileLayer("Satellite", "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", "Esri et al.", undefined, "");
 
 		addOverlayLayer("OpenSeaMap", new ol.layer.Tile({
 			source: new ol.source.XYZ({
@@ -7207,8 +7221,8 @@
 				serverType: 'geoserver'
 			})
 		}));
-		let mdabout = "This content can be defined by the owner of the station";
 
+		let mdabout = "This content can be defined by the owner of the station";
 		console.log("Starting plugin code");
 	</script>
 
@@ -7220,16 +7234,12 @@
 
 		console.log("Plugin loading completed");
 
-		init_preSettings();
-
 		console.log("Load settings");
 		loadSettings();
 
 		console.log("Load settings from URL parameters");
 
 		loadSettingsFromURL();
-
-		init_postSettings();
 
 		updateAndroid();
 		applyDynamicStyling();
@@ -7241,8 +7251,6 @@
 		initMap();
 
 		updateDarkMode();
-
-		init_postTabsInit();
 
 		console.log("Switch to active tab");
 		selectTab();
