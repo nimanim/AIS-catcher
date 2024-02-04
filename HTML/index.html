@@ -2247,7 +2247,7 @@
 						<span>Icon Size</span>
 						<span>
 							<input type="range" id="settings_icon_scale" min="0.5" max="1" step="0.01"
-								onchange="settings.icon_scale = this.value; updateMap(); saveSettings(); " />
+								onchange="settings.icon_scale = this.value; redrawMap(); saveSettings(); " />
 						</span>
 					</div>
 					<div>
@@ -2284,7 +2284,7 @@
 						<span>Track Weight</span>
 						<span>
 							<input type="range" id="settings_track_weight" min="1" max="4" step="1"
-								onchange="settings.track_weight = this.value; updateMap(); saveSettings();" />
+								onchange="settings.track_weight = this.value; redrawMap(); saveSettings();" />
 						</span>
 					</div>
 				</section>
@@ -6786,18 +6786,8 @@
 
 			if (fetch_binary) ok = await fetchShipsBinary();
 			else ok = await fetchShips();
-
 			if (!ok) return;
 
-			await fetchRange();
-
-			/* 
-	ok = await fetchShipsBinary();
-	if (!ok) return;
-	
-	const differences = compareObjects(shipsDB, shipsDB2);
-	console.log("Differences:", differences);
-*/
 
 			ok = await fetchTracks();
 			if (!ok) return;
@@ -6811,6 +6801,9 @@
 			}
 			if (shipcardVisible()) populateShipcard();
 			updateMarkerCount();
+
+			await fetchRange();
+
 			redrawMap();
 		}
 
@@ -6947,27 +6940,26 @@
 		}
 
 		function refresh_data() {
-			if (!document.hidden) {
-				if (!updateInProgress) {
-					updateInProgress = true;
+			if (!document.hidden && !updateInProgress) {
+				updateInProgress = true;
 
+				(async () => {
 					try {
-						if (settings.tab == "map") {
-							updateMap();
-						} else if (settings.tab == "stat") {
-							updateStatistics();
-						} else if (settings.tab == "plots") {
-							updatePlots();
-						} else if (settings.tab == "ships") {
-							updateShipTable();
+						if (settings.tab === "map") {
+							await updateMap();
+						} else if (settings.tab === "stat") {
+							await updateStatistics();
+						} else if (settings.tab === "plots") {
+							await updatePlots();
+						} else if (settings.tab === "ships") {
+							await updateShipTable();
 						}
 					} catch (error) {
-						// Handle the error if needed
-						console.error(error);
+						console.error("Error updating data:", error);
 					} finally {
 						updateInProgress = false;
 					}
-				}
+				})();
 			}
 		}
 
