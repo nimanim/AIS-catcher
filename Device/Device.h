@@ -103,7 +103,7 @@ namespace Device {
 				tuner_bandwidth = Util::Parse::Integer(arg, 0, 1000000);
 			}
 			else if (option == "FREQOFFSET") {
-				freq_offset = Util::Parse::Float(arg, -150, 150);
+				freq_offset = Util::Parse::Float(arg, -400, 400);
 			}
 			else if (option == "FORMAT") {
 				Format f;
